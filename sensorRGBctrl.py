@@ -107,6 +107,7 @@ while True:
     pir_oneCheck=GPIO.input(12)
     pir_twoCheck=GPIO.input(29)
 
+    
     if pir_oneCheck==0 and pir_twoCheck==0 and tabOccStat['occupied'] is True:
         j=0        
         time.sleep(3.5)
@@ -134,4 +135,13 @@ while True:
 
             if timeDiff> 1:
                 print ('Customer has left...Table to be re-assigned')
+
+                #updates 'reserved' status of table to false if there are no queued reservation
+                putTabResStat= requests.put(urlPutReserve)
+                tabResStat=putTabResStat.json()
+
+                #check if person has made payment
+                #if not bring to front desk attention
+
+
  
