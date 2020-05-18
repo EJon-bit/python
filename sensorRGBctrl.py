@@ -3,6 +3,35 @@ import RPi.GPIO as GPIO
 import time
 from neopixel import *
 from datetime import date
+import socketio
+
+# standard Python
+sio = socketio.Client()
+
+
+@sio.event
+def connect():
+    print("I'm connected!")
+
+@sio.event
+def connect_error():
+    print("The connection failed!")
+
+@sio.event
+def disconnect():
+    print("I'm disconnected!")
+
+# sio.emit('my message', {'foo': 'bar'})
+
+@sio.on('triggerRgb')
+def on_message(data):
+    print('RGB has been triggered', data)
+    rgbControl()
+    
+sio.connect('http://localhost:5000')
+
+
+sio.wait()
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(12, GPIO.IN)
@@ -16,7 +45,8 @@ LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
 LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
 LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
 LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
- 
+
+tableId="5e29fa9c1c9d4400001deed2"
 #gets reserve all reservations for this table and the reserve date and check if any customer is onsite
 urlonSiteGet="http://localhost:5000/reservation/checkonsite/5e29fa9c1c9d4400001deed2"
 
