@@ -11,7 +11,7 @@ PIR_PIN= 12
 PIR2_PIN=29
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(PIR_PIN, GPIO.IN)
-GPIO.setup(PIR2_PIN, GPIO.IN)
+GPIO.setup(PIR2_PIN, GPIO.IN)  
 
 LED_COUNT      = 16      # Number of LED pixels.
 LED_PIN        = 12      # GPIO pin connected to the pixels (18 uses PWM!).
