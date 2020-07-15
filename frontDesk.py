@@ -144,5 +144,9 @@ try:
                     GPIO.output(BUZZ_1PIN, GPIO.LOW)
                     time.sleep(0.5)
                     i+=1
+except Exception as e:
+    print(e)
 
-           
+finally:
+    sio.disconnect()
+    GPIO.cleanup()

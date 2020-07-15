@@ -197,6 +197,11 @@ try:
                     elif payStat['paid'] is False:  
                         #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
                         sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
+except Exception as e:
+    print(e)
 
+finally:
+    sio.disconnect()
+    GPIO.cleanup()
 
  
