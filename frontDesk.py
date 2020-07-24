@@ -2,6 +2,20 @@ import requests
 import RPi.GPIO as GPIO
 import time
 import socketio
+import logging, logging.handlers
+
+logger = logging.getLogger(__name__)
+
+logger.setLevel(logging.DEBUG)
+
+file= logging.FileHandler(filename='CustomerMGMT.log')
+file.setLevel(logging.WARNING)
+
+file2= logging.handlers.FileHandler(filename='CustomerError.log')
+file2.setLevel(logging.INFO)
+
+logger.addHandler(file);
+logger.addHandler(file2);
 
 # standard Python
 sio = socketio.Client()
@@ -31,45 +45,46 @@ approvedCount=0
 
 @sio.event
 def connect():
-    print("I'm connected!")
+    logger.info("I'm connected!")
 
 @sio.event
 def connect_error():
-    print("The connection failed!")
+    logger.error("The connection failed!")
 
 @sio.event
 def disconnect():
-     print("I'm disconnected!") 
+    logger.info("I'm disconnected!") 
 
 #listens for event prevent false alarms at front desk when a validated customer tries to enter
 @sio.event
 def entryApproval(data):
-    print('An Approved customer is now enterring!')
+    logger.info('An Approved customer is now enterring!')
     approvedCount=data
 
+#event occurs when customers leave their a table without paying
 @sio.event
 def noticeDesk(data):
-    print('A customer may be attempting to leave without pay!')
+    logger.info('A customer may be attempting to leave without pay!')
     #counts the numer of customers currently trying to leave without pay
     exitDeclinedCount=data
 
-sio.connect('http://localhost:5000')
+sio.connect('http://192.168.1.178:5000')
 
 sio.wait()
 
 
 
-def OBSTACLE(PIR_PIN):
-    #if last (3rd) ir sensor detected customer then middle sensor or just middle then this
+
+def OBSTACLE(IR_PIN):
+    #if 2nd (middle sensor) triggered before first
     if irSequence2==2 or irSequence2==3:
-        irSequence1=2
-        print('Person Leaving')
+        irSequence1=2       
     else:
         #1st ir sensor is then person might be entering
         irSequence1=1
     
 
-def OBSTACLE_TWO(PIR2_PIN):
+def OBSTACLE_TWO(IR2_PIN):
     #if 1st ir sonsor detects person before middle sensor
     if irSequence1==1 :
         irSequence2=1
@@ -82,7 +97,7 @@ def OBSTACLE_TWO(PIR2_PIN):
         irSequence2==3
     
 
-def OBSTACLE_THREE(PIR2_PIN):
+def OBSTACLE_THREE(IR3_PIN):
     #if 1st sensor then 2nd detected person
     if irSequence2==1:
         irSequence3=2
@@ -104,7 +119,7 @@ try:
 
         if irSequence1==1 or irSequence2==1 or irSequence3==1:
             eraseCounters()
-            print('Customer entering')
+            logger.info('Customer entering')
 
             #triggers alarm if person that has not been validated is trying to enter
             if approvedCount==0:
@@ -121,7 +136,7 @@ try:
 
         elif irSequence2==2 or irSequence1==2:
             eraseCounters()
-            print('Customer Leaving')
+            logger.info('Customer Leaving')
             if exitDeclinedCount>0:
                 sio.emit('noPay', 'leaving')#emit mesage to server to alert front desk of deceitful customers
                 while i<=5:
@@ -134,7 +149,7 @@ try:
 
         elif  irSequence3==1 and irSequence1==1:
             eraseCounters()
-            print('A Customer is Leaving while another enters')
+            logger.info('A Customer is Leaving while another enters')
 
             if approvedCount==0 or exitDeclinedCount>0:
                 sio.emit('noPay', 'both')
@@ -145,7 +160,7 @@ try:
                     time.sleep(0.5)
                     i+=1
 except Exception as e:
-    print(e)
+    logger.exception(e)
 
 finally:
     sio.disconnect()

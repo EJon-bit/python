@@ -4,6 +4,21 @@ import time
 from neopixel import *
 from datetime import date
 import socketio
+import logging, logging.handlers
+
+logger = logging.getLogger(__name__)
+
+logger.setLevel(logging.DEBUG)
+
+file= logging.FileHandler(filename='tableErrorMGMT.log')
+file.setLevel(logging.WARNING)
+
+file2= logging.handlers.FileHandler(filename='Table.log')
+file2.setLevel(logging.INFO)
+
+logger.addHandler(file);
+logger.addHandler(file2);
+
 
 # standard Python
 sio = socketio.Client()
@@ -24,16 +39,16 @@ LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
 tableId="5e29fa9c1c9d4400001deed2"
 #gets reservation  for an onSite customer corresponding to the table id
-urlPayGet="http://localhost:5000/reservation/checkpay/5e29fa9c1c9d4400001deed2"
+urlPayGet="http://192.168.1.178:5000/reservation/checkpay/5e29fa9c1c9d4400001deed2"
 
 #gets status of the table(occupied or not) and the object id
-urlGetTableStat="http://localhost:5000/table/5e29fa9c1c9d4400001deed2" #TESTED AND WORKING
+urlGetTableStat="http://192.168.1.178:5000/table/5e29fa9c1c9d4400001deed2" #TESTED AND WORKING
 
 #updates occupied field when PIR detects motion
-urlPutTableOcc="http://localhost:5000/table/tableoccupancyStat/5e29fa9c1c9d4400001deed2" #TESTED AND WORKING
+urlPutTableOcc="http://192.168.1.178:5000/table/tableoccupancyStat/5e29fa9c1c9d4400001deed2" #TESTED AND WORKING
 
 #deletes reservation
-urlResDelete="http://localhost:5000/reservation/deletereserve/5e29fa9c1c9d4400001deed2"
+urlResDelete="http://192.168.1.178:5000/reservation/deletereserve/5e29fa9c1c9d4400001deed2"
 
 rgbStart=0
 pirOne=0
@@ -60,24 +75,24 @@ def theaterChase(strip, color, wait_ms=50, iterations=10):
 
 @sio.event
 def connect():
-    print("I'm connected!")
+    logger.info("I'm connected!")
 
 @sio.event
 def connect_error():
-    print("The connection failed!")
+    logger.error("The connection failed!")
 
 @sio.event
 def disconnect():
-    print("I'm disconnected!")   
+    logger.info("I'm disconnected!")   
 
 #listens for alert event to start rgb lights..based on if the event data correlates with the tableID
 @sio.on('triggerRgb')
 def on_message(data):
-    print('RGB has been triggered', data)
+    logger.info('RGB has been triggered', data)
     if (data==tableId):
         rgbStart=1
     
-sio.connect('http://192.168.0.53:5000')
+sio.connect('http://192.168.1.178:5000')
 
 
 sio.wait()
@@ -93,7 +108,7 @@ def rgbTrigger():
 def pirControl():
     putTabOcc= requests.put(urlPutTableOcc)
     tabOcc=putTabOcc.json()
-    print(tabOcc)
+    logger.info(tabOcc)
    
   
 
@@ -120,11 +135,11 @@ try:
         tabOccStat=getTabOcc.json()   
        
         if rgbStart==1:
-            print ('Color wipe animations.')
+            logger.info('Color wipe animations.')
             colorWipe(strip, Color(255, 0, 0))  # Red wipe
             colorWipe(strip, Color(0, 255, 0))  # Blue wipe
             colorWipe(strip, Color(0, 0, 255))  # Green wipe
-            print ('Theater chase animations.')
+            logger.info('Theater chase animations.')
             theaterChase(strip, Color(127, 127, 127))  # White theater chase
             theaterChase(strip, Color(127,   0,   0))  # Red theater chase
             theaterChase(strip, Color(  0,   0, 127))  # Blue theater chase
@@ -165,7 +180,7 @@ try:
 
                 putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
                 tabOcc=putTabOcc.json()
-                print(tabOcc)
+                logger.info(tabOcc)
                 
 
                 if j==1:
@@ -182,15 +197,15 @@ try:
                     pirTwo=0
                     getPay= requests.get(urlPayGet)
                     payStat= getPay.json()
-                    print (payStat)
+                    logger.info(payStat)
                    
                     
                     #checks if customer has made payment
                     if payStat['paid'] is True:
-                        print ('Customer has left...Table to be re-assigned')
+                        logger.info('Customer has left...Table to be re-assigned')
                                                 
                         requests.delete(urlResDelete)
-                        print ('Reservation has been deleted')
+                        logger.info('Reservation has been deleted')
                         customValidate=0
 
                         
@@ -198,7 +213,7 @@ try:
                         #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
                         sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
 except Exception as e:
-    print(e)
+    logger.exception(e)
 
 finally:
     sio.disconnect()
