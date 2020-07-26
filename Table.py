@@ -1,7 +1,7 @@
 import requests
 import RPi.GPIO as GPIO
 import time
-from neopixel import *
+from rpi_ws281x import *
 from datetime import date
 import socketio
 import logging
