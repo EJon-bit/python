@@ -108,9 +108,7 @@ def rgbTrigger():
 def pirControl():
     putTabOcc= requests.put(urlPutTableOcc)
     tabOcc=putTabOcc.json()
-    logger.info(tabOcc)
-   
-  
+    logger.info(tabOcc)    
 
 
 def MOTION(PIR_PIN):
@@ -212,6 +210,12 @@ try:
                     elif payStat['paid'] is False:  
                         #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
                         sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
+except KeyboardInterrupt:  
+    # here you put any code you want to run before the program   
+    # exits when you press CTRL+C  
+    logger.exception('Exit Code')
+
+
 except Exception as e:
     logger.exception(e)
 
