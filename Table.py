@@ -24,9 +24,14 @@ logger.addHandler(file2);
 sio = socketio.Client()
 PIR_PIN= 12
 PIR2_PIN=29
+PIR3_PIN=24
+PIR4_PIN=13
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(PIR_PIN, GPIO.IN)
-GPIO.setup(PIR2_PIN, GPIO.IN)  
+GPIO.setup(PIR2_PIN, GPIO.IN)
+GPIO.setup(PIR3_PIN, GPIO.IN)
+GPIO.setup(PIR4_PIN, GPIO.IN)
+
 
 LED_COUNT      = 16      # Number of LED pixels.
 LED_PIN        = 12      # GPIO pin connected to the pixels (18 uses PWM!).
@@ -37,22 +42,24 @@ LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
 LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
 LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
-tableId="5e29fa9c1c9d4400001deed2"
+tableId="5e29fa071c9d4400001deed1"
 #gets reservation  for an onSite customer corresponding to the table id
-urlPayGet="http://192.168.1.178:5000/reservation/checkpay/5e29fa9c1c9d4400001deed2"
+urlPayGet="http://192.168.1.178:5000/reservation/checkpay/5e29fa071c9d4400001deed1"
 
 #gets status of the table(occupied or not) and the object id
-urlGetTableStat="http://192.168.1.178:5000/table/5e29fa9c1c9d4400001deed2" #TESTED AND WORKING
+urlGetTableStat="http://192.168.1.178:5000/table/5e29fa071c9d4400001deed1" #TESTED AND WORKING
 
 #updates occupied field when PIR detects motion
-urlPutTableOcc="http://192.168.1.178:5000/table/tableoccupancyStat/5e29fa9c1c9d4400001deed2" #TESTED AND WORKING
+urlPutTableOcc="http://192.168.1.178:5000/table/tableoccupancyStat/5e29fa071c9d4400001deed1" #TESTED AND WORKING
 
 #deletes reservation
-urlResDelete="http://192.168.1.178:5000/reservation/deletereserve/5e29fa9c1c9d4400001deed2"
+urlResDelete="http://192.168.1.178:5000/reservation/deletereserve/5e29fa071c9d4400001deed1"
 
 rgbStart=0
 pirOne=0
 pirTwo=0
+pirThree=0
+pirFour=0
 customValidate=0
 
 def colorWipe(strip, color, wait_ms=50):
@@ -123,11 +130,26 @@ def MOTION_TWO(PIR2_PIN):
     else:                  # if pin input low 
         pirTwo=2
 
+def MOTION_THREE(PIR3_PIN):
+    if GPIO.input(PIR3_PIN):     # if pin input high  
+        pirThree=1
+    else:                  # if pin input low 
+        pirThree=2
+
+def MOTION_FOUR(PIR4_PIN):
+    if GPIO.input(PIR4_PIN):     # if pin input high  
+        pirFour=1
+    else:                  # if pin input low 
+        pirFour=2
+
 
 
 try:
     GPIO.add_event_detect(12, GPIO.BOTH, callback=MOTION)
     GPIO.add_event_detect(29, GPIO.BOTH, callback=MOTION_TWO)
+    GPIO.add_event_detect(24, GPIO.BOTH, callback=MOTION_THREE)
+    GPIO.add_event_detect(13, GPIO.BOTH, callback=MOTION_FOUR)
+
     while 1:   
         getTabOcc= requests.get(urlGetTableStat)
         tabOccStat=getTabOcc.json()   
@@ -144,11 +166,11 @@ try:
             
            
            # when lights are on and motion is detected at table
-            if pirOne==1 or pirTwo==1:
+            if pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1:
                 time.sleep(3.5)
                 
                 #check if motion is still detected to eliminate chance of error
-                if pirOne==1 or pirTwo==1:                    
+                if pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1:                    
                     colorWipe(strip, Color(0,0,0), 10) #turn off lights 
                     rgbStart=0 
                     customValidate=1                  
@@ -159,20 +181,20 @@ try:
         #if a customer accidentally takes a seat at the wrong table 
         # or if persons tries to move chairs from one table to another 
         # or if a person who wasnt validated slips through the cracks
-        if (pirOne==1 or pirTwo==1) and customValidate==0:
+        if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0:
             time.sleep(3.5)
-            if (pirOne==1 or pirTwo==1) and customValidate==0: 
+            if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0: 
                 sio.emit('wrongTable', 'true') #emit event to frontdesk
 
         #if pir does not detect movement while the occupied field is true
         # then wait a bit and check if there is still no motion
-        if pirOne==2 and pirTwo==2 and tabOccStat['occupied'] is True:
+        if pirOne==2 and pirTwo==2 and pirThree==1 and pirFour==1 and tabOccStat['occupied'] is True:
             j=0        
             time.sleep(3.5)
             
             #counts the duration for which the customer has left the table
             # changes the reserve status of the table to unreserved if customer does not return in x minutes
-            while pirOne==2 and pirTwo==2:
+            while pirOne==2 and pirTwo==2 and pirThree==1 and pirFour==1:
 
                 j=j+1
 
@@ -193,6 +215,8 @@ try:
                 if timeDiff> 1:
                     pirOne=0
                     pirTwo=0
+                    pirThree=0
+                    pirFour=0
                     getPay= requests.get(urlPayGet)
                     payStat= getPay.json()
                     logger.info(payStat)
