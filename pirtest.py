@@ -16,8 +16,10 @@ pirOne=0
 def MOTION(PIR_PIN):
     if GPIO.input(PIR_PIN):     # if pin input high  
         pirOne=1
+        print('Pir  variable has a value of', pirOne)
     else:                  # if pin input low 
         pirOne=2
+        print('Pir variable has a value of', pirOne)
 
 
 try:
