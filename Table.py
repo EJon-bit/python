@@ -69,6 +69,7 @@ def rgbTrigger():
     strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
     # Intialize the library (must be called once before other functions).
     strip.begin()
+    logger.info('RGB has been set up')
 
 def colorWipe(strip, color, wait_ms=50):
     """Wipe color across display a pixel at a time."""
@@ -103,6 +104,7 @@ def disconnect():
 #listens for alert event to start rgb lights..based on if the event data correlates with the tableID
 @sio.on('triggerRgb')
 def on_message(data):
+    logger.info('RGB has been triggered')
     logger.info(data)  
     if(data==tableId):
         rgbStart=1
@@ -158,8 +160,8 @@ try:
 
     rgbTrigger()
 
-    while 1:   
-               
+    while 1: 
+                       
         if rgbStart==1:
             logger.info('Color wipe animations.')
             colorWipe(strip, Color(255, 0, 0))  # Red wipe
@@ -192,6 +194,7 @@ try:
             time.sleep(3.5)
             if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0: 
                 sio.emit('wrongTable', 'true') #emit event to frontdesk
+                logger.info('wrong Table')
 
         #if pir does not detect movement while the occupied field is true
         # then wait a bit and check if there is still no motion
@@ -226,7 +229,7 @@ try:
                     pirFour=0
                     getPay= requests.get(urlPayGet)
                     payStat= getPay.json()
-                    logger.info(payStat)
+                    logger.info(payStat['paid'])
                    
                     
                     #checks if customer has made payment
@@ -251,6 +254,10 @@ except Exception as e:
     logger.exception(e)
 
 finally:
+    logger.info(pirOne)
+    logger.info(pirTwo)
+    logger.info(pirThree)
+    logger.info(pirFour) 
     sio.disconnect()
     GPIO.cleanup()
 
