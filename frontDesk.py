@@ -139,7 +139,7 @@ try:
             logger.info('Customer Leaving')
             if exitDeclinedCount>0:
                 sio.emit('noPay', 'leaving')#emit mesage to server to alert front desk of deceitful customers
-                while i<=5:
+                while i<=50:
                     GPIO.output(BUZZ_2PIN, GPIO.HIGH)
                     time.sleep(0.2);
                     GPIO.output(BUZZ_2PIN, GPIO.LOW)

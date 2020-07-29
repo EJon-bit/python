@@ -3,7 +3,7 @@
 import requests
 import RPi.GPIO as GPIO
 import time
-from rpi_ws281x import *
+from rpi_ws281x import PixelStrip, Color
 from datetime import date
 import socketio
 import logging
@@ -24,11 +24,11 @@ logger.addHandler(file2);
 
 # standard Python
 sio = socketio.Client()
-PIR_PIN= 12
-PIR2_PIN=29
-PIR3_PIN=24
-PIR4_PIN=13
-GPIO.setmode(GPIO.BOARD)
+PIR_PIN= 18
+PIR2_PIN=5
+PIR3_PIN=8
+PIR4_PIN=27
+GPIO.setmode(GPIO.BCM)
 GPIO.setup(PIR_PIN, GPIO.IN)
 GPIO.setup(PIR2_PIN, GPIO.IN)
 GPIO.setup(PIR3_PIN, GPIO.IN)
@@ -36,7 +36,7 @@ GPIO.setup(PIR4_PIN, GPIO.IN)
 
 
 LED_COUNT      = 16      # Number of LED pixels.
-LED_PIN        = 12      # GPIO pin connected to the pixels (18 uses PWM!).
+LED_PIN        = 12   # GPIO pin connected to the pixels (18 uses PWM!).
 
 LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
 LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
@@ -63,6 +63,12 @@ pirTwo=0
 pirThree=0
 pirFour=0
 customValidate=0
+
+def rgbTrigger():
+    # Create NeoPixel object with appropriate configuration.
+    strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+    # Intialize the library (must be called once before other functions).
+    strip.begin()
 
 def colorWipe(strip, color, wait_ms=50):
     """Wipe color across display a pixel at a time."""
@@ -100,23 +106,21 @@ def on_message(data):
     logger.info('RGB has been triggered', data)
     if (data==tableId):
         rgbStart=1
+
+@sio.on('occTable')
+def occ_message(data):
+    logger.info('Table is occupied', data)
+    if (data=='true'):
+        getTabOcc= requests.get(urlGetTableStat)
+        tabOccStat=getTabOcc.json()  
     
 sio.connect('http://192.168.1.178:5000')
-
-
-sio.wait()
-
-
-def rgbTrigger():
-    # Create NeoPixel object with appropriate configuration.
-    strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
-    # Intialize the library (must be called once before other functions).
-    strip.begin()
 
 
 def pirControl():
     putTabOcc= requests.put(urlPutTableOcc)
     tabOcc=putTabOcc.json()
+    sio.emit('tableOcc', 'true');
     logger.info(tabOcc)    
 
 
@@ -147,15 +151,15 @@ def MOTION_FOUR(PIR4_PIN):
 
 
 try:
-    GPIO.add_event_detect(12, GPIO.BOTH, callback=MOTION)
-    GPIO.add_event_detect(29, GPIO.BOTH, callback=MOTION_TWO)
-    GPIO.add_event_detect(24, GPIO.BOTH, callback=MOTION_THREE)
-    GPIO.add_event_detect(13, GPIO.BOTH, callback=MOTION_FOUR)
+    GPIO.add_event_detect(PIR_PIN, GPIO.BOTH, callback=MOTION)
+    GPIO.add_event_detect(PIR2_PIN, GPIO.BOTH, callback=MOTION_TWO)
+    GPIO.add_event_detect(PIR3_PIN, GPIO.BOTH, callback=MOTION_THREE)
+    GPIO.add_event_detect(PIR4_PIN, GPIO.BOTH, callback=MOTION_FOUR)
+
+    rgbTrigger()
 
     while 1:   
-        getTabOcc= requests.get(urlGetTableStat)
-        tabOccStat=getTabOcc.json()   
-       
+               
         if rgbStart==1:
             logger.info('Color wipe animations.')
             colorWipe(strip, Color(255, 0, 0))  # Red wipe
@@ -178,7 +182,7 @@ try:
                     customValidate=1                  
                     pirControl()  #update occupied field to true for table
         if rgbStart==0:
-            time.sleep(100)  
+            time.sleep(0.1)  
 
         #if a customer accidentally takes a seat at the wrong table 
         # or if persons tries to move chairs from one table to another 
