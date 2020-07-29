@@ -104,11 +104,12 @@ def disconnect():
 #listens for alert event to start rgb lights..based on if the event data correlates with the tableID
 @sio.on('triggerRgb')
 def on_message(data):
-    logger.info('RGB has been triggered')
-    logger.info(data)  
+    logger.info('RGB has been triggered')     
     if(data==tableId):
         rgbStart=1
+        logger.info('data is equal to TableId')
 
+#listens for even generated when customer reaches their table to get the occupancy status of the table
 @sio.on('occTable')
 def occ_message(data):
     logger.info('Table is occupied')
@@ -184,7 +185,8 @@ try:
                     customValidate=1                  
                     pirControl()  #update occupied field to true for table
         elif rgbStart==0:
-            time.sleep(0.1) 
+            time.sleep(0.1)
+            logger.info('RGB is off') 
 
         
         #if a customer accidentally takes a seat at the wrong table 
