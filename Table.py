@@ -21,23 +21,22 @@ file2.setLevel(logging.INFO)
 logger.addHandler(file);
 logger.addHandler(file2);
 
-
-# standard Python
-sio = socketio.Client()
-PIR_PIN= 18
-PIR2_PIN=5
-PIR3_PIN=8
-PIR4_PIN=27
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(PIR_PIN, GPIO.IN)
 GPIO.setup(PIR2_PIN, GPIO.IN)
 GPIO.setup(PIR3_PIN, GPIO.IN)
 GPIO.setup(PIR4_PIN, GPIO.IN)
 
+sio = socketio.Client()
+
+PIR_PIN= 18
+PIR2_PIN=5
+PIR3_PIN=8
+PIR4_PIN=27
+
 
 LED_COUNT      = 16      # Number of LED pixels.
 LED_PIN        = 12   # GPIO pin connected to the pixels (18 uses PWM!).
-
 LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
 LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
 LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
