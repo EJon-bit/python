@@ -103,9 +103,7 @@ def disconnect():
 #listens for alert event to start rgb lights..based on if the event data correlates with the tableID
 @sio.on('triggerRgb')
 def on_message(data):
-    logger.info('RGB has been triggered')
-    logger.info(data)
-    logger.info(tableId)
+    logger.info(data)  
     if(data==tableId):
         rgbStart=1
 
