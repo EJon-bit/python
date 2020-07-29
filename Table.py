@@ -107,6 +107,7 @@ def on_message(data):
     logger.info('RGB has been triggered')     
     if(data==tableId):
         rgbStart=1
+        logger.info(rgbStart)
         logger.info('data is equal to TableId')
 
 #listens for even generated when customer reaches their table to get the occupancy status of the table
@@ -187,65 +188,65 @@ try:
         elif rgbStart==0:
             time.sleep(0.1)
             logger.info('RGB is off') 
-
         
-        #if a customer accidentally takes a seat at the wrong table 
-        # or if persons tries to move chairs from one table to another 
-        # or if a person who wasnt validated slips through the cracks
-        if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0:
-            time.sleep(3.5)
-            if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0: 
-                sio.emit('wrongTable', 'true') #emit event to frontdesk
-                logger.info('wrong Table')
+            #if a customer accidentally takes a seat at the wrong table 
+            # or if persons tries to move chairs from one table to another 
+            # or if a person who wasnt validated slips through the cracks
+            if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0:
+                time.sleep(3.5)
+                if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0: 
+                    sio.emit('wrongTable', 'true') #emit event to frontdesk
+                    logger.info('wrong Table')
 
-        #if pir does not detect movement while the occupied field is true
-        # then wait a bit and check if there is still no motion
-        if pirOne==2 and pirTwo==2 and pirThree==1 and pirFour==1 and tabOccStat['occupied'] is True:
-            j=0        
-            time.sleep(3.5)
-            
-            #counts the duration for which the customer has left the table
-            # changes the reserve status of the table to unreserved if customer does not return in x minutes
-            while pirOne==2 and pirTwo==2 and pirThree==1 and pirFour==1:
-
-                j=j+1
-
-                putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
-                tabOcc=putTabOcc.json()
-                logger.info(tabOcc)
+            #if pir does not detect movement while the occupied field is true
+            # then wait a bit and check if there is still no motion
+            elif pirOne==2 and pirTwo==2 and pirThree==1 and pirFour==1 and tabOccStat['occupied'] is True:
+                j=0        
+                time.sleep(3.5)
                 
+                #counts the duration for which the customer has left the table
+                # changes the reserve status of the table to unreserved if customer does not return in x minutes
+                while pirOne==2 and pirTwo==2 and pirThree==1 and pirFour==1:
 
-                if j==1:
-                    timeCheck_one= time.time()/60
-            
-                else:
-                    # constantly re-writes until the time since last detected motion is greater than the limit (1 minute)
-                    timeCheck_two= time.time()/60 
+                    j=j+1
 
-                timeDiff= timeCheck_two - timeCheck_one 
-
-                if timeDiff> 1:
-                    pirOne=0
-                    pirTwo=0
-                    pirThree=0
-                    pirFour=0
-                    getPay= requests.get(urlPayGet)
-                    payStat= getPay.json()
-                    logger.info(payStat['paid'])
-                   
+                    putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
+                    tabOcc=putTabOcc.json()
+                    logger.info(tabOcc)
                     
-                    #checks if customer has made payment
-                    if payStat['paid'] is True:
-                        logger.info('Customer has left...Table to be re-assigned')
-                                                
-                        requests.delete(urlResDelete)
-                        logger.info('Reservation has been deleted')
-                        customValidate=0
 
+                    if j==1:
+                        timeCheck_one= time.time()/60
+                
+                    else:
+                        # constantly re-writes until the time since last detected motion is greater than the limit (1 minute)
+                        timeCheck_two= time.time()/60 
+
+                    timeDiff= timeCheck_two - timeCheck_one 
+
+                    if timeDiff> 1:
+                        pirOne=0
+                        pirTwo=0
+                        pirThree=0
+                        pirFour=0
+                        getPay= requests.get(urlPayGet)
+                        payStat= getPay.json()
+                        logger.info(payStat['paid'])
+                    
                         
-                    elif payStat['paid'] is False:  
-                        #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
-                        sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
+                        #checks if customer has made payment
+                        if payStat['paid'] is True:
+                            logger.info('Customer has left...Table to be re-assigned')
+                                                    
+                            requests.delete(urlResDelete)
+                            logger.info('Reservation has been deleted')
+                            customValidate=0
+
+                            
+                        elif payStat['paid'] is False:  
+                            #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
+                            sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
+
 except KeyboardInterrupt:  
     # here you put any code you want to run before the program   
     # exits when you press CTRL+C  
