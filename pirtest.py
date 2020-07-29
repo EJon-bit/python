@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+
+#test PIR Sensors
+
 import RPi.GPIO as GPIO
 import time
 
