@@ -4,7 +4,7 @@
 #
 # Direct port of the Arduino NeoPixel library strandtest example.  Showcases
 # various animations on a strip of NeoPixels.
-
+import RPi.GPIO as GPIO
 import time
 from rpi_ws281x import PixelStrip, Color
 import argparse
