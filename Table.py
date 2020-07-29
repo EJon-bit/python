@@ -105,7 +105,8 @@ def disconnect():
 def on_message(data):
     logger.info('RGB has been triggered')
     logger.info(data)
-    if (data==tableId):
+    logger.info(tableId)
+    if(data==tableId):
         rgbStart=1
 
 @sio.on('occTable')
