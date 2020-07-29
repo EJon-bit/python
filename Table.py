@@ -185,10 +185,12 @@ try:
                     rgbStart=0 
                     customValidate=1                  
                     pirControl()  #update occupied field to true for table
-        elif rgbStart==0:
-            time.sleep(0.1)
+        elif rgbStart==0:            
             logger.info('RGB is off') 
-        
+            logger.info(pirOne)
+            logger.info(pirTwo)
+            logger.info(pirThree)
+            logger.info(pirFour)
             #if a customer accidentally takes a seat at the wrong table 
             # or if persons tries to move chairs from one table to another 
             # or if a person who wasnt validated slips through the cracks
@@ -247,6 +249,7 @@ try:
                             #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
                             sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
 
+            sio.wait()
 except KeyboardInterrupt:  
     # here you put any code you want to run before the program   
     # exits when you press CTRL+C  
@@ -257,10 +260,7 @@ except Exception as e:
     logger.exception(e)
 
 finally:
-    logger.info(pirOne)
-    logger.info(pirTwo)
-    logger.info(pirThree)
-    logger.info(pirFour) 
+     
     sio.disconnect()
     GPIO.cleanup()
 
