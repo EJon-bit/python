@@ -216,7 +216,7 @@ try:
                     # constantly re-writes until the time since last detected motion is greater than the limit (1 minute)
                     timeCheck_two= time.time()/60 
 
-                timeDiff= timeCheck_two - timeCheck_one
+                timeDiff= timeCheck_two - timeCheck_one 
 
                 if timeDiff> 1:
                     pirOne=0
