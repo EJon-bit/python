@@ -53,11 +53,7 @@ try:
     strip.begin()
 
     print('Press Ctrl-C to quit.')
-    if not args.clear:
-        print('Use "-c" argument to clear LEDs on exit')
-
     
-
     while True:
         print('Color wipe animations.')        
         colorWipe(strip, Color(0, 255, 0))  # Blue wipe
