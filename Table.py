@@ -22,10 +22,6 @@ logger.addHandler(file);
 logger.addHandler(file2);
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(PIR_PIN, GPIO.IN)
-GPIO.setup(PIR2_PIN, GPIO.IN)
-GPIO.setup(PIR3_PIN, GPIO.IN)
-GPIO.setup(PIR4_PIN, GPIO.IN)
 
 sio = socketio.Client()
 
@@ -34,6 +30,10 @@ PIR2_PIN=5
 PIR3_PIN=8
 PIR4_PIN=27
 
+GPIO.setup(PIR_PIN, GPIO.IN)
+GPIO.setup(PIR2_PIN, GPIO.IN)
+GPIO.setup(PIR3_PIN, GPIO.IN)
+GPIO.setup(PIR4_PIN, GPIO.IN)
 
 LED_COUNT      = 16      # Number of LED pixels.
 LED_PIN        = 12   # GPIO pin connected to the pixels (18 uses PWM!).
