@@ -107,7 +107,7 @@ def on_message(data):
     logger.info('RGB has been triggered')     
     if(data==tableId):
         rgbStart=1
-        logger.info(rgbStart)
+        # logger.info(rgbStart)
         logger.info('data is equal to TableId')
 
 #listens for even generated when customer reaches their table to get the occupancy status of the table
@@ -191,6 +191,7 @@ try:
             logger.info(pirTwo)
             logger.info(pirThree)
             logger.info(pirFour)
+
             #if a customer accidentally takes a seat at the wrong table 
             # or if persons tries to move chairs from one table to another 
             # or if a person who wasnt validated slips through the cracks
@@ -199,7 +200,7 @@ try:
                 if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0: 
                     sio.emit('wrongTable', 'true') #emit event to frontdesk
                     logger.info('wrong Table')
-
+            
             #if pir does not detect movement while the occupied field is true
             # then wait a bit and check if there is still no motion
             elif pirOne==2 and pirTwo==2 and pirThree==1 and pirFour==1 and tabOccStat['occupied'] is True:
