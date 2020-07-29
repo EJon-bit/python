@@ -23,7 +23,7 @@ def MOTION(PIR_PIN):
 
 
 try:
-    GPIO.add_event_detect(PIR_PIN, GPIO.BOTH, callback=MOTION)
+    GPIO.add_event_detect(PIR_PIN, GPIO.RISING, callback=MOTION)
 
     while 1:
 

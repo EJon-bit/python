@@ -28,7 +28,7 @@ def rgbTrigger():
     print('RGB has been set up')
 
 # Define functions which animate LEDs in various ways.
-def colorWipe(strip, color, wait_ms=50):
+def colorWipe(strip, color, wait_ms=10):
     """Wipe color across display a pixel at a time."""
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, color)
@@ -54,6 +54,8 @@ def theaterChase(strip, color, wait_ms=100, iterations=10):
 # Main program logic follows:
 try:    
    
+    rgbTrigger()
+    
     print('Press Ctrl-C to quit.')
     
     while True:
