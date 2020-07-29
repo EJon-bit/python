@@ -182,7 +182,7 @@ try:
                     customValidate=1                  
                     pirControl()  #update occupied field to true for table
         elif rgbStart==0:
-            sio.wait() 
+            time.sleep(0.1) 
 
         
         #if a customer accidentally takes a seat at the wrong table 
