@@ -103,13 +103,14 @@ def disconnect():
 #listens for alert event to start rgb lights..based on if the event data correlates with the tableID
 @sio.on('triggerRgb')
 def on_message(data):
-    logger.info('RGB has been triggered', data)
+    logger.info('RGB has been triggered')
+    logger.info(data)
     if (data==tableId):
         rgbStart=1
 
 @sio.on('occTable')
 def occ_message(data):
-    logger.info('Table is occupied', data)
+    logger.info('Table is occupied')
     if (data=='true'):
         getTabOcc= requests.get(urlGetTableStat)
         tabOccStat=getTabOcc.json()  
