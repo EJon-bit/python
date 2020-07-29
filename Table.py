@@ -200,7 +200,7 @@ try:
                 if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0: 
                     sio.emit('wrongTable', 'true') #emit event to frontdesk
                     logger.info('wrong Table')
-            
+
             #if pir does not detect movement while the occupied field is true
             # then wait a bit and check if there is still no motion
             elif pirOne==2 and pirTwo==2 and pirThree==1 and pirFour==1 and tabOccStat['occupied'] is True:
@@ -250,7 +250,7 @@ try:
                             #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
                             sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
 
-            sio.wait()
+            #sio.wait()
 except KeyboardInterrupt:  
     # here you put any code you want to run before the program   
     # exits when you press CTRL+C  
