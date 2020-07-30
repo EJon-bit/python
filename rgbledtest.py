@@ -39,7 +39,7 @@ def MOTION(PIR_PIN):
 
 
 # Define functions which animate LEDs in various ways.
-def colorWipe(strip, color, wait_ms=30):
+def colorWipe(strip, color, wait_ms=25):
     """Wipe color across display a pixel at a time."""
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, color)
@@ -50,12 +50,12 @@ def colorWipe(strip, color, wait_ms=30):
 def theaterChase(strip, color, wait_ms=100, iterations=10):
     """Movie theater light style chaser animation."""
     for j in range(iterations):
-        for q in range(3):
-            for i in range(0, strip.numPixels(), 3):
+        for q in range(2):
+            for i in range(0, strip.numPixels(), 2):
                 strip.setPixelColor(i + q, color)
             strip.show()
             time.sleep(wait_ms / 1000.0)
-            for i in range(0, strip.numPixels(), 3):
+            for i in range(0, strip.numPixels(), 2):
                 strip.setPixelColor(i + q, 0)
 
 
@@ -119,7 +119,9 @@ try:
                     rgbStart=0 
                  
                     
-        elif rgbStart==0:  
+        elif rgbStart==0: 
+            if pirOne==2:
+                 print('Person has left table') 
             print('RGB is off') 
             time.sleep(1)
 
