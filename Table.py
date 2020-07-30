@@ -177,7 +177,7 @@ try:
             theaterChase(strip, Color(127, 127, 127))  # White theater chase
             theaterChase(strip, Color(127,   0,   0))  # Red theater chase
             theaterChase(strip, Color(  0,   0, 127))  # Blue theater chase
-            
+            time.sleep(0.5)
            
            # when lights are on and motion is detected at table
             if pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1:
@@ -189,6 +189,7 @@ try:
                     rgbStart=0 
                     customValidate=1                  
                     pirControl()  #update occupied field to true for table
+                    
         elif rgbStart==0:            
             logger.info('RGB is off') 
            
