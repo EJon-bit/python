@@ -132,7 +132,7 @@ try:
 
     print('Press Ctrl-C to quit.')
     
-    while True:
+    while 1:
         if rgbStart==1:
             print('Color wipe animations.')        
             colorWipe(strip, Color(0, 255, 0))  # Blue wipe
