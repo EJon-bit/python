@@ -70,9 +70,6 @@ def noticeDesk(data):
 
 sio.connect('http://192.168.1.178:5000')
 
-sio.wait()
-
-
 
 
 def OBSTACLE(IR_PIN):
