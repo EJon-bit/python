@@ -107,6 +107,7 @@ try:
         
             theaterChase(strip, Color(127, 0, 0))  # Red theater chase
             theaterChase(strip, Color(0, 0, 127))  # Blue theater chase
+            time.sleep(0.2)
 
             if pirOne==1:
                 time.sleep(0.5)
