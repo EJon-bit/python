@@ -138,8 +138,7 @@ def pirControl():
 try:   
     GPIO.add_event_detect(PIR_PIN, GPIO.BOTH, callback=MOTION)
     GPIO.add_event_detect(PIR2_PIN, GPIO.BOTH, callback=MOTION_TWO)
-    GPIO.add_event_detect(PIR3_PIN, GPIO.BOTH, callback=MOTION_THREE)
-    GPIO.add_event_detect(PIR4_PIN, GPIO.BOTH, callback=MOTION_FOUR)
+   
 
     # Create NeoPixel object with appropriate configuration.
     strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
