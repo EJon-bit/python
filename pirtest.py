@@ -8,11 +8,12 @@ import time
 GPIO.setmode(GPIO.BCM)
 PIR_PIN = 18
 GPIO.setup(PIR_PIN, GPIO.IN)
-pir_one=0
+pirOne=0
 
 def MOTION(PIR_PIN):
-    pir_one=1
-    print(pir_one)
+    global pir_one
+    pirOne=1
+    print('Pir One is',pirOne)
     
 
 print ('PIR Module Test (CTRL+C to exit)')
@@ -22,13 +23,14 @@ print ('Ready')
 try:
     GPIO.add_event_detect(PIR_PIN, GPIO.RISING, callback=MOTION)
     while 1:
-        if pir_one==1:
+        if pirOne==1:
             print ('Motion Detected!')
         else:
             print ('No Motion Detected!')
 
         time.sleep(5)
-        pirOne= False
+        pirOne=0
+        print('Pir One is',pirOne)
         
 
 except KeyboardInterrupt:
