@@ -70,7 +70,7 @@ def main():
 
     email_sent = send_logs(host, user, password, toAddr, fromAddr, subject)
     if email_sent:
-            clean_logs()
+            clean_logs()            
 
 if __name__ == '__main__':
-        main()
+    main()

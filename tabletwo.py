@@ -6,6 +6,15 @@ import time
 from rpi_ws281x import PixelStrip, Color
 import socketio
 from datetime import date
+import logging
+
+logger = logging.getLogger(__name__)
+
+logger.setLevel(logging.DEBUG)
+
+file= logging.FileHandler(filename='table2.log')
+
+logger.addHandler(file);
 
 sio = socketio.Client()
 
@@ -33,20 +42,16 @@ LED_INVERT = False    # True to invert the signal (when using NPN transistor lev
 LED_CHANNEL = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
 GPIO.setmode(GPIO.BCM)
-PIR_PIN = 18
-PIR2_PIN=5
-PIR3_PIN=8
-PIR4_PIN=27
+PIR_PIN=18
+PIR2_PIN=8
+
 GPIO.setup(PIR_PIN, GPIO.IN)
 GPIO.setup(PIR2_PIN, GPIO.IN)
-GPIO.setup(PIR3_PIN, GPIO.IN)
-GPIO.setup(PIR4_PIN, GPIO.IN)
 
 #checks to keep tabs on PIR status
 pirOne=0
 pirTwo=0
-pirThree=0
-pirFour=0
+
 
 rgbStart=0 #check var to keep tabs on state of RGB lights (i.e. whether on/off)
 
@@ -56,10 +61,10 @@ def MOTION(PIR_PIN):
     global pirOne
     if GPIO.input(PIR_PIN):     # if pin input high  
         pirOne=1
-        print('Motion detected')
+        logger.info('Motion detected')
     else:                  # if pin input low 
         pirOne=2
-        print('Motion no Longer detected')
+        logger.info('Motion no Longer detected')
     
 def MOTION_TWO(PIR2_PIN):
     global pirTwo
@@ -67,20 +72,6 @@ def MOTION_TWO(PIR2_PIN):
         pirTwo=1
     else:                  # if pin input low 
         pirTwo=2
-
-def MOTION_THREE(PIR3_PIN):
-    global pirThree
-    if GPIO.input(PIR3_PIN):     # if pin input high  
-        pirThree=1
-    else:                  # if pin input low 
-        pirThree=2
-
-def MOTION_FOUR(PIR4_PIN):
-    global pirFour
-    if GPIO.input(PIR4_PIN):     # if pin input high  
-        pirFour=1
-    else:                  # if pin input low 
-        pirFour=2
 
 # Define functions which animate LEDs in various ways.
 def colorWipe(strip, color, wait_ms=25):
@@ -104,36 +95,35 @@ def theaterChase(strip, color, wait_ms=100, iterations=5):
 
 @sio.event
 def connect():
-    print("I'm connected!")
+    logger.info("I'm connected!")
 
 @sio.event
 def connect_error():
-    print("The connection failed!")
+    logger.info("The connection failed!")
 
 @sio.event
 def disconnect():
-    print("I'm disconnected!")   
+    logger.info("I'm disconnected!")   
 
 #listens for alert event to start rgb lights..based on if the event data correlates with the tableID
 @sio.on('triggerRgb')
 def on_message(data):
     global rgbStart
     global tableId
-    print('RGB has been triggered')     
+    logger.info('RGB has been triggered')     
     if(data==tableId):        
-        rgbStart=1
-        # logger.info(rgbStart)
-        print('data is equal to TableId')
+        rgbStart=1      
+        logger.info('data is equal to TableId')
 
 #listens for even generated when customer reaches their table to get the occupancy status of the table
 @sio.on('occTable')
 def occ_message(data):
-    print('Table is occupied')
+    logger.info('Table is occupied')
     if (data=='true'):
         global tabOccStat
         getTabOcc= requests.get(urlGetTableStat)
         tabOccStat=getTabOcc.json()  
-        print(tabOccStat['occupied'])
+        logger.info(tabOccStat['occupied'])
 
 sio.connect('http://192.168.1.178:5000')
 
@@ -142,7 +132,7 @@ def pirControl():
     putTabOcc= requests.put(urlPutTableOcc)
     tabOcc=putTabOcc.json()
     sio.emit('tableOcc', 'true');
-    print(tabOcc)
+    logger.info(tabOcc)
 
 
 try:   
@@ -156,26 +146,26 @@ try:
     # Intialize the library (must be called once before other functions).
     strip.begin()
 
-    print('Press Ctrl-C to quit.')
+    logger.info('Press Ctrl-C to quit.')
     
     while 1:
         if rgbStart==1:
-            print('Color wipe animations.')        
+            logger.info('Color wipe animations.')        
             colorWipe(strip, Color(0, 255, 0))  # Blue wipe
             colorWipe(strip, Color(0, 0, 255))  # Green wipe
-            print('Theater chase animations.')
+            logger.info('Theater chase animations.')
         
             theaterChase(strip, Color(127, 0, 0))  # Red theater chase
             theaterChase(strip, Color(0, 0, 127))  # Blue theater chase
             time.sleep(0.2)
 
             # when lights are on and motion is detected at table
-            if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1):
+            if (pirOne==1 or pirTwo==1):
                 time.sleep(0.5)
                 
                 #check if motion is still detected to eliminate chance of error
-                if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1):  
-                    print('Person has arrived at table')                  
+                if (pirOne==1 or pirTwo==1):  
+                    logger.info('Person has arrived at table')                  
                     colorWipe(strip, Color(0,0,0), 10) #turn off lights 
                     rgbStart=0 
                     customValidate=1                  
@@ -183,34 +173,34 @@ try:
                     time.sleep(0.1)
                     
         elif rgbStart==0: 
-            print('Var Customevalidate equal', customValidate)
+            logger.info(customValidate)
             time.sleep(1)
 
             #if a customer accidentally takes a seat at the wrong table 
             # or if persons tries to move chairs from one table to another 
             # or if a person who wasnt validated slips through the cracks
-            if ((pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0):
+            if ((pirOne==1 or pirTwo==1) and customValidate==0):
                 time.sleep(3.5)
-                if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0: 
+                if (pirOne==1 or pirTwo==1) and customValidate==0: 
                     sio.emit('wrongTable', 'true') #emit event to frontdesk
-                    print('wrong Table')
+                    logger.info('wrong Table')
 
             #if pir does not detect movement while the occupied field is true
             # then wait a bit and check if there is still no motion    
-            elif ((pirOne==2 and pirTwo==2 and pirThree==2 and pirFour==2) and tabOccStat['occupied'] is True):
+            elif ((pirOne==2 and pirTwo==2) and tabOccStat['occupied'] is True):
                 j=0   
-                print('A customer may be Leaving')     
+                logger.info('A customer may be Leaving')     
                 time.sleep(3.5)
                 
                 #counts the duration for which the customer has left the table
                 # changes the reserve status of the table to unreserved if customer does not return in x minutes
-                while (pirOne==2 and pirTwo==2 and pirThree==2 and pirFour==2):
+                while (pirOne==2 and pirTwo==2):
 
                     j=j+1
-                    print('Value of J is', j)
+                    logger.info('Value of J is', j)
                     putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
                     tabOcc=putTabOcc.json()
-                    print(tabOcc)
+                    logger.info(tabOcc)
                     
 
                     if j==1:
@@ -229,15 +219,15 @@ try:
                         pirFour=0
                         getPay= requests.get(urlPayGet)
                         payStat= getPay.json()
-                        print(payStat['paid'])
+                        logger.info(payStat['paid'])
                     
                         
                         #checks if customer has made payment
                         if payStat['paid'] is True:
-                            print('Customer has left...Table to be re-assigned')
+                            logger.info('Customer has left...Table to be re-assigned')
                                                     
                             requests.delete(urlResDelete)
-                            print('Reservation has been deleted')
+                            logger.info('Reservation has been deleted')
                             customValidate=0
 
                             
@@ -245,8 +235,11 @@ try:
                             #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
                             sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
 
-except KeyboardInterrupt:
-   print('Exit')
+except KeyboardInterrupt:  
+   logger.info('Exit')
+
+except Exception(e):
+    logger.exception(e)
 
 finally:
     sio.disconnect()
