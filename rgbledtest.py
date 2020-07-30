@@ -109,7 +109,7 @@ try:
             theaterChase(strip, Color(0, 0, 127))  # Blue theater chase
 
             if pirOne==1:
-                time.sleep(3.5)
+                time.sleep(2)
                 
                 #check if motion is still detected to eliminate chance of error
                 if pirOne==1:  
@@ -120,10 +120,11 @@ try:
                     
         elif rgbStart==0:  
             print('RGB is off') 
+            time.sleep(1)
 
 except KeyboardInterrupt:
    print('Exit')
 
 finally:
-    colorWipe(strip, Color(0, 0, 0), 10)
+    sio.disconnect()
     GPIO.cleanup()
