@@ -166,7 +166,7 @@ try:
     strip.begin()
     logger.info('RGB has been set up')
 
-    while 1: 
+    while True: 
                        
         if rgbStart==1:
             logger.info('Color wipe animations.')
@@ -191,11 +191,7 @@ try:
                     pirControl()  #update occupied field to true for table
         elif rgbStart==0:            
             logger.info('RGB is off') 
-            logger.info(pirOne)
-            logger.info(pirTwo)
-            logger.info(pirThree)
-            logger.info(pirFour)
-
+           
             #if a customer accidentally takes a seat at the wrong table 
             # or if persons tries to move chairs from one table to another 
             # or if a person who wasnt validated slips through the cracks
