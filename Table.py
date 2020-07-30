@@ -252,8 +252,7 @@ try:
                             #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
                             sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
 
-            else:
-                sio.wait()
+            
 except KeyboardInterrupt:  
     # here you put any code you want to run before the program   
     # exits when you press CTRL+C  

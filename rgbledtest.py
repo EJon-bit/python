@@ -7,7 +7,11 @@
 import RPi.GPIO as GPIO
 import time
 from rpi_ws281x import PixelStrip, Color
+import socketio
 
+sio = socketio.Client()
+
+tableId="5e29fa071c9d4400001deed1"
 
 # LED strip configuration:
 LED_COUNT = 60        # Number of LED pixels.
@@ -19,6 +23,19 @@ LED_BRIGHTNESS = 50  # Set to 0 for darkest and 255 for brightest
 LED_INVERT = False    # True to invert the signal (when using NPN transistor level shift)
 LED_CHANNEL = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
+GPIO.setmode(GPIO.BCM)
+PIR_PIN = 18
+GPIO.setup(PIR_PIN, GPIO.IN)
+pirOne=0
+rgbStart=0
+
+def MOTION(PIR_PIN):
+    global pirOne
+    if GPIO.input(PIR_PIN):     # if pin input high  
+        pirOne=1
+    else:                  # if pin input low 
+        pirOne=2
+    
 
 
 # Define functions which animate LEDs in various ways.
@@ -42,7 +59,31 @@ def theaterChase(strip, color, wait_ms=100, iterations=10):
                 strip.setPixelColor(i + q, 0)
 
 
+@sio.event
+def connect():
+    print("I'm connected!")
 
+@sio.event
+def connect_error():
+    print("The connection failed!")
+
+@sio.event
+def disconnect():
+    print("I'm disconnected!")   
+
+#listens for alert event to start rgb lights..based on if the event data correlates with the tableID
+@sio.on('triggerRgb')
+def on_message(data):
+    global rgbStart
+    global tableId
+    print('RGB has been triggered')     
+    if(data==tableId):        
+        rgbStart=1
+        # logger.info(rgbStart)
+        print('data is equal to TableId')
+
+
+sio.connect('http://192.168.1.178:5000')
 
 
 # Main program logic follows:
@@ -55,14 +96,26 @@ try:
     print('Press Ctrl-C to quit.')
     
     while True:
-        print('Color wipe animations.')        
-        colorWipe(strip, Color(0, 255, 0))  # Blue wipe
-        colorWipe(strip, Color(0, 0, 255))  # Green wipe
-        print('Theater chase animations.')
-       
-        theaterChase(strip, Color(127, 0, 0))  # Red theater chase
-        theaterChase(strip, Color(0, 0, 127))  # Blue theater chase
-       
+        if rgbStart==1:
+            print('Color wipe animations.')        
+            colorWipe(strip, Color(0, 255, 0))  # Blue wipe
+            colorWipe(strip, Color(0, 0, 255))  # Green wipe
+            print('Theater chase animations.')
+        
+            theaterChase(strip, Color(127, 0, 0))  # Red theater chase
+            theaterChase(strip, Color(0, 0, 127))  # Blue theater chase
+
+            if pirOne==1:
+                time.sleep(3.5)
+                
+                #check if motion is still detected to eliminate chance of error
+                if pirOne==1:                    
+                    colorWipe(strip, Color(0,0,0), 10) #turn off lights 
+                    rgbStart=0 
+                 
+                    
+        elif rgbStart==0:  
+            print('RGB is off') 
 
 except KeyboardInterrupt:
    print('Exit')
