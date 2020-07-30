@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-# NeoPixel library strandtest example
-# Author: Tony DiCola (tony@tonydicola.com)
-#
-# Direct port of the Arduino NeoPixel library strandtest example.  Showcases
-# various animations on a strip of NeoPixels.
+
 import RPi.GPIO as GPIO
 import time
 from rpi_ws281x import PixelStrip, Color
@@ -25,8 +21,12 @@ LED_CHANNEL = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
 GPIO.setmode(GPIO.BCM)
 PIR_PIN = 18
+PIR2_PIN=5
 GPIO.setup(PIR_PIN, GPIO.IN)
+GPIO.setup(PIR2_PIN, GPIO.IN)
+
 pirOne=0
+pirTwo=0
 rgbStart=0
 
 def MOTION(PIR_PIN):
@@ -36,7 +36,12 @@ def MOTION(PIR_PIN):
     else:                  # if pin input low 
         pirOne=2
     
-
+def MOTION_TWO(PIR2_PIN):
+    global pirTwo
+    if GPIO.input(PIR2_PIN):     # if pin input high  
+        pirTwo=1
+    else:                  # if pin input low 
+        pirTwo=2
 
 # Define functions which animate LEDs in various ways.
 def colorWipe(strip, color, wait_ms=25):
@@ -85,12 +90,13 @@ def on_message(data):
 
 sio.connect('http://192.168.1.178:5000')
 
-# time.sleep(2)
-# print ('Ready')
 
-# Main program logic follows:
+
+
 try:   
-    GPIO.add_event_detect(PIR_PIN, GPIO.BOTH, callback=MOTION) 
+    GPIO.add_event_detect(PIR_PIN, GPIO.BOTH, callback=MOTION)
+    GPIO.add_event_detect(PIR2_PIN, GPIO.BOTH, callback=MOTION_TWO)
+
     # Create NeoPixel object with appropriate configuration.
     strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
     # Intialize the library (must be called once before other functions).
@@ -109,18 +115,18 @@ try:
             theaterChase(strip, Color(0, 0, 127))  # Blue theater chase
             time.sleep(0.2)
 
-            if pirOne==1:
+            if pirOne==1 or pirTwo==1:
                 time.sleep(0.5)
                 
                 #check if motion is still detected to eliminate chance of error
-                if pirOne==1:  
+                if pirOne==1 or pir_2==1:  
                     print('Person has arrived at table')                  
                     colorWipe(strip, Color(0,0,0), 10) #turn off lights 
                     rgbStart=0 
                     time.sleep(0.1)
                     
         elif rgbStart==0: 
-            if pirOne==2:
+            if pirOne==2 or pirTwo==2:
                  print('Person has left table') 
             print('RGB is off') 
             time.sleep(1)
