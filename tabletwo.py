@@ -203,15 +203,14 @@ try:
                     #counts the duration for which the customer has left the table
                     # changes the reserve status of the table to unreserved if customer does not return in x minutes
                     while (pirOne==2 and pirTwo==2):
-
                         j=j+1
-                        logger.info('Value of J is')
-                        putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
-                        tabOcc=putTabOcc.json()
-                        logger.info(tabOcc)
-                        
+                        logger.info(j)
+                                              
 
                         if j==1:
+                            putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
+                            tabOcc=putTabOcc.json()
+                            logger.info(tabOcc)
                             timeCheck_one= time.time()/60
                     
                         else:
