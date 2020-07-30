@@ -29,7 +29,8 @@ try:
             print ('No Motion Detected!')
 
         time.sleep(5)
-       
+        pirOne=0
+        print('Pir One is', pirOne)
         
 
 except KeyboardInterrupt:
