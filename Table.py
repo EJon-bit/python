@@ -179,7 +179,7 @@ try:
 
             # when lights are on and motion is detected at table
             if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1):
-                time.sleep(0.5)
+                time.sleep(2)
                 
                 #check if motion is still detected to eliminate chance of error
                 if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1):  
