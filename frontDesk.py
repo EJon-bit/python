@@ -74,6 +74,7 @@ sio.connect('http://192.168.1.178:5000')
 
 def OBSTACLE(IR_PIN):
     #if 2nd (middle sensor) triggered before first
+    global irSequence1    
     if irSequence2==2 or irSequence2==3:
         irSequence1=2       
     else:
@@ -83,6 +84,7 @@ def OBSTACLE(IR_PIN):
 
 def OBSTACLE_TWO(IR2_PIN):
     #if 1st ir sonsor detects person before middle sensor
+    global irSequence2
     if irSequence1==1 :
         irSequence2=1
 
@@ -96,12 +98,16 @@ def OBSTACLE_TWO(IR2_PIN):
 
 def OBSTACLE_THREE(IR3_PIN):
     #if 1st sensor then 2nd detected person
+    global irSequence3
     if irSequence2==1:
         irSequence3=2
     else:
         irSequence3=1
 
 def eraseCounters():
+    global irSequence1
+    global irSequence2
+    global irSequence3
     irSequence1=0
     irSequence2=0
     irSequence3=0
@@ -137,9 +143,9 @@ try:
             if exitDeclinedCount>0:
                 sio.emit('noPay', 'leaving')#emit mesage to server to alert front desk of deceitful customers
                 while i<=50:
-                    GPIO.output(BUZZ_2PIN, GPIO.HIGH)
+                    GPIO.output(BUZZ_1PIN, GPIO.HIGH)
                     time.sleep(0.2);
-                    GPIO.output(BUZZ_2PIN, GPIO.LOW)
+                    GPIO.output(BUZZ_1PIN, GPIO.LOW)
                     time.sleep(0.2);
                     i+=1
 
