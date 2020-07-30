@@ -8,10 +8,10 @@ import time
 GPIO.setmode(GPIO.BCM)
 PIR_PIN = 18
 GPIO.setup(PIR_PIN, GPIO.IN)
-pirOne=True
+pirOne= False
 
 def MOTION(PIR_PIN):
-    pirOne=1
+    pirOne=True
     print(pirOne)
     
 
@@ -27,7 +27,7 @@ try:
         else:
             print ('No Motion Detected!')
 
-        pirOne=0
+        pirOne= False
         time.sleep(5)
 
 except KeyboardInterrupt:
