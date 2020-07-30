@@ -203,7 +203,7 @@ try:
                     while (pirOne==2 and pirTwo==2):
 
                         j=j+1
-                        logger.info('Value of J is', j)
+                        logger.info('Value of J is')
                         putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
                         tabOcc=putTabOcc.json()
                         logger.info(tabOcc)
