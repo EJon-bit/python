@@ -119,7 +119,7 @@ try:
                 time.sleep(0.5)
                 
                 #check if motion is still detected to eliminate chance of error
-                if pirOne==1 or pir_2==1:  
+                if pirOne==1 or pirTwo==1:  
                     print('Person has arrived at table')                  
                     colorWipe(strip, Color(0,0,0), 10) #turn off lights 
                     rgbStart=0 
