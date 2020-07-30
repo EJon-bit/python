@@ -99,6 +99,7 @@ def disconnect():
 @sio.on('triggerRgb')
 def on_message(data):
     global rgbStart
+    global tableId
     logger.info('RGB has been triggered')     
     if(data==tableId):        
         rgbStart=1
