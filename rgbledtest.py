@@ -53,8 +53,10 @@ def MOTION(PIR_PIN):
     global pirOne
     if GPIO.input(PIR_PIN):     # if pin input high  
         pirOne=1
+        print('Motion detected')
     else:                  # if pin input low 
         pirOne=2
+        print('Motion no Longer detected')
     
 def MOTION_TWO(PIR2_PIN):
     global pirTwo
@@ -174,6 +176,8 @@ try:
                     time.sleep(0.1)
                     
         elif rgbStart==0: 
+            print('Var Customevalidate equal', customValidate)
+
             if ((pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0):
                 time.sleep(3.5)
                 if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0: 
@@ -181,7 +185,8 @@ try:
                     print('wrong Table')
                 
             elif ((pirOne==2 and pirTwo==2 and pirThree==2 and pirFour==2) and tabOccStat['occupied'] is True):
-                j=0        
+                j=0   
+                print('A customer may be Leaving')     
                 time.sleep(3.5)
                 
                 #counts the duration for which the customer has left the table
@@ -189,7 +194,7 @@ try:
                 while (pirOne==2 and pirTwo==2 and pirThree==2 and pirFour==2):
 
                     j=j+1
-
+                    print('Value of J is', j)
                     putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
                     tabOcc=putTabOcc.json()
                     print(tabOcc)
