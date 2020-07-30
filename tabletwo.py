@@ -17,6 +17,7 @@ file= logging.FileHandler(filename='table2.log')
 logger.addHandler(file);
 
 sio = socketio.Client()
+tabOccStat={}
 
 tableId="5e29fa9c1c9d4400001deed2"
 
