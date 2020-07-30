@@ -129,6 +129,7 @@ def occ_message(data):
         global tabOccStat
         getTabOcc= requests.get(urlGetTableStat)
         tabOccStat=getTabOcc.json()  
+        print(tabOccStat['occupied'])
 
 sio.connect('http://192.168.1.178:5000')
 
