@@ -130,8 +130,7 @@ def on_message(data):
     global tableId
     logger.info('RGB has been triggered')     
     if(data==tableId):        
-        rgbStart=1
-        # logger.info(rgbStart)
+        rgbStart=1      
         logger.info('data is equal to TableId')
 
 #listens for even generated when customer reaches their table to get the occupancy status of the table
@@ -192,7 +191,7 @@ try:
                     time.sleep(0.1)
                     
         elif rgbStart==0: 
-            logger.info('Var Customevalidate equal', customValidate)
+            logger.info(customValidate)
             time.sleep(1)
 
             #if a customer accidentally takes a seat at the wrong table 
