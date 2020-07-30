@@ -12,6 +12,7 @@ pirOne=0
 
 def MOTION(PIR_PIN):
     pirOne=1
+    print(pirOne)
     
 
 print ('PIR Module Test (CTRL+C to exit)')
@@ -27,7 +28,7 @@ try:
             print ('No Motion Detected!')
 
         pirOne=0
-        time.sleep(100)
+        time.sleep(5)
 
 except KeyboardInterrupt:
     print ('Quit')
