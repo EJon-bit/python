@@ -117,7 +117,7 @@ try:
                     print('Person has arrived at table')                  
                     colorWipe(strip, Color(0,0,0), 10) #turn off lights 
                     rgbStart=0 
-                 
+                    time.sleep(0.1)
                     
         elif rgbStart==0: 
             if pirOne==2:
