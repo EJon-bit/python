@@ -114,6 +114,7 @@ def on_message(data):
 def occ_message(data):
     logger.info('Table is occupied')
     if (data=='true'):
+        global tabOccStat
         getTabOcc= requests.get(urlGetTableStat)
         tabOccStat=getTabOcc.json()  
     

@@ -1,16 +1,29 @@
 #!/usr/bin/env python3
 
+import requests
 import RPi.GPIO as GPIO
 import time
 from rpi_ws281x import PixelStrip, Color
 import socketio
+from datetime import date
 
 sio = socketio.Client()
 
 tableId="5e29fa071c9d4400001deed1"
 
+urlPayGet="http://192.168.1.178:5000/reservation/checkpay/5e29fa071c9d4400001deed1"
+
+#gets status of the table(occupied or not) and the object id
+urlGetTableStat="http://192.168.1.178:5000/table/5e29fa071c9d4400001deed1" #TESTED AND WORKING
+
+#updates occupied field when PIR detects motion
+urlPutTableOcc="http://192.168.1.178:5000/table/tableoccupancyStat/5e29fa071c9d4400001deed1" #TESTED AND WORKING
+
+#deletes reservation
+urlResDelete="http://192.168.1.178:5000/reservation/deletereserve/5e29fa071c9d4400001deed1"
+
 # LED strip configuration:
-LED_COUNT = 60        # Number of LED pixels.
+LED_COUNT = 56        # Number of LED pixels.
 LED_PIN = 12         # GPIO pin connected to the pixels (18 uses PWM!).
 # LED_PIN = 10        # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
 LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
@@ -34,6 +47,7 @@ pirTwo=0
 pirThree=0
 pirFour=0
 rgbStart=0
+customValidate=0
 
 def MOTION(PIR_PIN):
     global pirOne
@@ -83,7 +97,6 @@ def theaterChase(strip, color, wait_ms=100, iterations=5):
             for i in range(0, strip.numPixels(), 3):
                 strip.setPixelColor(i + q, 0)
 
-
 @sio.event
 def connect():
     print("I'm connected!")
@@ -109,14 +122,19 @@ def on_message(data):
 
 @sio.on('occTable')
 def occ_message(data):
-    logger.info('Table is occupied')
+    print('Table is occupied')
     if (data=='true'):
+        global tabOccStat
         getTabOcc= requests.get(urlGetTableStat)
         tabOccStat=getTabOcc.json()  
 
 sio.connect('http://192.168.1.178:5000')
 
-
+def pirControl():
+    putTabOcc= requests.put(urlPutTableOcc)
+    tabOcc=putTabOcc.json()
+    sio.emit('tableOcc', 'true');
+    print(tabOcc)
 
 
 try:   
@@ -143,21 +161,71 @@ try:
             theaterChase(strip, Color(0, 0, 127))  # Blue theater chase
             time.sleep(0.2)
 
-            if pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1:
+            if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1):
                 time.sleep(0.5)
                 
                 #check if motion is still detected to eliminate chance of error
-                if pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1:  
+                if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1):  
                     print('Person has arrived at table')                  
                     colorWipe(strip, Color(0,0,0), 10) #turn off lights 
                     rgbStart=0 
+                    customValidate=1                  
+                    pirControl()  #update occupied field to true for table
                     time.sleep(0.1)
                     
         elif rgbStart==0: 
-            if pirOne==2 or pirTwo==2 or pirThree==2 or pirFour==2:
-                 print('Person has left table') 
-            print('RGB is off') 
-            time.sleep(1)
+            if ((pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0):
+                time.sleep(3.5)
+                if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0: 
+                    sio.emit('wrongTable', 'true') #emit event to frontdesk
+                    print('wrong Table')
+                
+            elif ((pirOne==2 and pirTwo==2 and pirThree==2 and pirFour==2) and tabOccStat['occupied'] is True):
+                j=0        
+                time.sleep(3.5)
+                
+                #counts the duration for which the customer has left the table
+                # changes the reserve status of the table to unreserved if customer does not return in x minutes
+                while (pirOne==2 and pirTwo==2 and pirThree==2 and pirFour==2):
+
+                    j=j+1
+
+                    putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
+                    tabOcc=putTabOcc.json()
+                    print(tabOcc)
+                    
+
+                    if j==1:
+                        timeCheck_one= time.time()/60
+                
+                    else:
+                        # constantly re-writes until the time since last detected motion is greater than the limit (1 minute)
+                        timeCheck_two= time.time()/60 
+
+                    timeDiff= timeCheck_two - timeCheck_one 
+
+                    if timeDiff> 1:
+                        pirOne=0
+                        pirTwo=0
+                        pirThree=0
+                        pirFour=0
+                        getPay= requests.get(urlPayGet)
+                        payStat= getPay.json()
+                        print(payStat['paid'])
+                    
+                        
+                        #checks if customer has made payment
+                        if payStat['paid'] is True:
+                            print('Customer has left...Table to be re-assigned')
+                                                    
+                            requests.delete(urlResDelete)
+                            print('Reservation has been deleted')
+                            customValidate=0
+
+                            
+                        elif payStat['paid'] is False:  
+                            #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
+                            sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
 
 except KeyboardInterrupt:
    print('Exit')
