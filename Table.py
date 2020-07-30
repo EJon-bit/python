@@ -57,6 +57,10 @@ pirTwo=0
 pirThree=0
 pirFour=0
 
+timeCheck_one=0
+timeCheck_two=0
+timeDiff=0
+
 rgbStart=0 #check var to keep tabs on state of RGB lights (i.e. whether on/off)
 
 customValidate=0 #check var to differentiate between a valid customer at table and the wrong customer
@@ -190,7 +194,7 @@ try:
                     pirControl()  #update occupied field to true for table
                     time.sleep(0.1)
                     
-        elif rgbStart==0: 
+        elif rgbStart==0 and (pir_One!=0 and pirTwo!=0): 
             logger.info(customValidate)
             time.sleep(1)
 
@@ -205,58 +209,63 @@ try:
 
             #if pir does not detect movement while the occupied field is true
             # then wait a bit and check if there is still no motion    
-            elif ((pirOne==2 and pirTwo==2 and pirThree==2 and pirFour==2) and tabOccStat['occupied'] is True):
-                j=0   
-                logger.info('A customer may be Leaving')     
-                time.sleep(3.5)
-                
-                #counts the duration for which the customer has left the table
-                # changes the reserve status of the table to unreserved if customer does not return in x minutes
-                while (pirOne==2 and pirTwo==2 and pirThree==2 and pirFour==2):
+            elif (pirOne==2 and pirTwo==2 and pirThree==2 and pirFour==2):
+                getTabOcc= requests.get(urlGetTableStat)
+                tabOccStat=getTabOcc.json()  
+                logger.info(tabOccStat['occupied'])           
 
-                    j=j+1
-                    logger.info('Value of J is')
-                    putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
-                    tabOcc=putTabOcc.json()
-                    logger.info(tabOcc)
-                    
+                if tabOccStat['occupied'] is True:
+                    j=0   
+                    logger.info('A customer may be Leaving')     
+                    time.sleep(3.5)
 
-                    if j==1:
-                        timeCheck_one= time.time()/60
-                
-                    else:
-                        # constantly re-writes until the time since last detected motion is greater than the limit (1 minute)
-                        timeCheck_two= time.time()/60 
+                    #counts the duration for which the customer has left the table
+                    # changes the reserve status of the table to unreserved if customer does not return in x minutes
+                    while (pirOne==2 and pirTwo==2 and pirThree==2 and pirFour==2):
 
-                    timeDiff= timeCheck_two - timeCheck_one 
-
-                    if timeDiff> 1:
-                        pirOne=0
-                        pirTwo=0
-                        pirThree=0
-                        pirFour=0
-                        getPay= requests.get(urlPayGet)
-                        payStat= getPay.json()
-                        logger.info(payStat['paid'])
-                    
+                        j=j+1
+                        logger.info('Value of J is')
+                        putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
+                        tabOcc=putTabOcc.json()
+                        logger.info(tabOcc)
                         
-                        #checks if customer has made payment
-                        if payStat['paid'] is True:
-                            logger.info('Customer has left...Table to be re-assigned')
-                                                    
-                            requests.delete(urlResDelete)
-                            logger.info('Reservation has been deleted')
-                            customValidate=0
 
+                        if j==1:
+                            timeCheck_one= time.time()/60
+                    
+                        else:
+                            # constantly re-writes until the time since last detected motion is greater than the limit (1 minute)
+                            timeCheck_two= time.time()/60 
+
+                        timeDiff= timeCheck_two - timeCheck_one 
+
+                        if timeDiff> 1:
+                            pirOne=0
+                            pirTwo=0
+                            pirThree=0
+                            pirFour=0
+                            getPay= requests.get(urlPayGet)
+                            payStat= getPay.json()
+                            logger.info(payStat['paid'])
+                        
                             
-                        elif payStat['paid'] is False:  
-                            #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
-                            sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
+                            #checks if customer has made payment
+                            if payStat['paid'] is True:
+                                logger.info('Customer has left...Table to be re-assigned')
+                                                        
+                                requests.delete(urlResDelete)
+                                logger.info('Reservation has been deleted')
+                                customValidate=0
+
+                                
+                            elif payStat['paid'] is False:  
+                                #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
+                                sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
 
 except KeyboardInterrupt:  
    logger.info('Exit')
 
-except Exception(e):
+except Exception as e:
     logger.exception(e)
 
 finally:

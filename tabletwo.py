@@ -244,7 +244,7 @@ try:
 except KeyboardInterrupt:  
    logger.info('Exit')
 
-except Exception(e):
+except Exception as e:
     logger.exception(e)
 
 finally:
