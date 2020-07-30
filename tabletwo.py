@@ -187,53 +187,57 @@ try:
 
             #if pir does not detect movement while the occupied field is true
             # then wait a bit and check if there is still no motion    
-            elif ((pirOne==2 and pirTwo==2) and tabOccStat['occupied'] is True):
-                j=0   
-                logger.info('A customer may be Leaving')     
-                time.sleep(3.5)
+            elif (pirOne==2 and pirTwo==2):
                 
-                #counts the duration for which the customer has left the table
-                # changes the reserve status of the table to unreserved if customer does not return in x minutes
-                while (pirOne==2 and pirTwo==2):
-
-                    j=j+1
-                    logger.info('Value of J is', j)
-                    putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
-                    tabOcc=putTabOcc.json()
-                    logger.info(tabOcc)
+                sio.emit('tableOcc', 'true') 
+            
+                if tabOccStat['occupied'] is True:
+                    j=0   
+                    logger.info('A customer may be Leaving')     
+                    time.sleep(3.5)
                     
+                    #counts the duration for which the customer has left the table
+                    # changes the reserve status of the table to unreserved if customer does not return in x minutes
+                    while (pirOne==2 and pirTwo==2):
 
-                    if j==1:
-                        timeCheck_one= time.time()/60
-                
-                    else:
-                        # constantly re-writes until the time since last detected motion is greater than the limit (1 minute)
-                        timeCheck_two= time.time()/60 
-
-                    timeDiff= timeCheck_two - timeCheck_one 
-
-                    if timeDiff> 1:
-                        pirOne=0
-                        pirTwo=0
-                        pirThree=0
-                        pirFour=0
-                        getPay= requests.get(urlPayGet)
-                        payStat= getPay.json()
-                        logger.info(payStat['paid'])
-                    
+                        j=j+1
+                        logger.info('Value of J is', j)
+                        putTabOcc= requests.put(urlPutTableOcc) #changes occupied status to false
+                        tabOcc=putTabOcc.json()
+                        logger.info(tabOcc)
                         
-                        #checks if customer has made payment
-                        if payStat['paid'] is True:
-                            logger.info('Customer has left...Table to be re-assigned')
-                                                    
-                            requests.delete(urlResDelete)
-                            logger.info('Reservation has been deleted')
-                            customValidate=0
 
+                        if j==1:
+                            timeCheck_one= time.time()/60
+                    
+                        else:
+                            # constantly re-writes until the time since last detected motion is greater than the limit (1 minute)
+                            timeCheck_two= time.time()/60 
+
+                        timeDiff= timeCheck_two - timeCheck_one 
+
+                        if timeDiff> 1:
+                            pirOne=0
+                            pirTwo=0
+                            pirThree=0
+                            pirFour=0
+                            getPay= requests.get(urlPayGet)
+                            payStat= getPay.json()
+                            logger.info(payStat['paid'])
+                        
                             
-                        elif payStat['paid'] is False:  
-                            #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
-                            sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
+                            #checks if customer has made payment
+                            if payStat['paid'] is True:
+                                logger.info('Customer has left...Table to be re-assigned')
+                                                        
+                                requests.delete(urlResDelete)
+                                logger.info('Reservation has been deleted')
+                                customValidate=0
+
+                                
+                            elif payStat['paid'] is False:  
+                                #sends customer details for customers who have not yet paid that may be attempting to leave  to server 
+                                sio.emit('frontdeskNotice', 'A customer may be leaving without pay')
 
 except KeyboardInterrupt:  
    logger.info('Exit')
