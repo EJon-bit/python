@@ -207,13 +207,13 @@ try:
 
             #if pir does not detect movement while the occupied field is true
             # then wait a bit and check if there is still no motion
-            elif pirOne==2 and pirTwo==2 and pirThree==1 and pirFour==1 and tabOccStat['occupied'] is True:
+            elif pirOne==2 and pirTwo==2 and pirThree==2 and pirFour==2 and tabOccStat['occupied'] is True:
                 j=0        
                 time.sleep(3.5)
                 
                 #counts the duration for which the customer has left the table
                 # changes the reserve status of the table to unreserved if customer does not return in x minutes
-                while pirOne==2 and pirTwo==2 and pirThree==1 and pirFour==1:
+                while pirOne==2 and pirTwo==2 and pirThree==2 and pirFour==2:
 
                     j=j+1
 
