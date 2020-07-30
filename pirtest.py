@@ -36,8 +36,7 @@ try:
             print ('No Motion Detected!')
             time.sleep(0.5)
 
-        pirOne=0
-        time.sleep(2)        
+              
         print('Pir One is', pirOne)
         
 
