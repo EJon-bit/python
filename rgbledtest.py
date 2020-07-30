@@ -85,9 +85,12 @@ def on_message(data):
 
 sio.connect('http://192.168.1.178:5000')
 
+# time.sleep(2)
+# print ('Ready')
 
 # Main program logic follows:
-try:    
+try:   
+    GPIO.add_event_detect(PIR_PIN, GPIO.BOTH, callback=MOTION) 
     # Create NeoPixel object with appropriate configuration.
     strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
     # Intialize the library (must be called once before other functions).
@@ -109,7 +112,8 @@ try:
                 time.sleep(3.5)
                 
                 #check if motion is still detected to eliminate chance of error
-                if pirOne==1:                    
+                if pirOne==1:  
+                    print('Person has arrived at table')                  
                     colorWipe(strip, Color(0,0,0), 10) #turn off lights 
                     rgbStart=0 
                  
