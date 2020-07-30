@@ -18,18 +18,18 @@ logger.addHandler(file);
 
 sio = socketio.Client()
 
-tableId="5e29fa071c9d4400001deed1"
+tableId="5e29fa9c1c9d4400001deed2"
 
-urlPayGet="http://192.168.1.178:5000/reservation/checkpay/5e29fa071c9d4400001deed1"
+urlPayGet="http://192.168.1.178:5000/reservation/checkpay/5e29fa9c1c9d4400001deed2"
 
 #gets status of the table(occupied or not) and the object id
-urlGetTableStat="http://192.168.1.178:5000/table/5e29fa071c9d4400001deed1" #TESTED AND WORKING
+urlGetTableStat="http://192.168.1.178:5000/table/5e29fa9c1c9d4400001deed2" #TESTED AND WORKING
 
 #updates occupied field when PIR detects motion
-urlPutTableOcc="http://192.168.1.178:5000/table/tableoccupancyStat/5e29fa071c9d4400001deed1" #TESTED AND WORKING
+urlPutTableOcc="http://192.168.1.178:5000/table/tableoccupancyStat/5e29fa9c1c9d4400001deed2" #TESTED AND WORKING
 
 #deletes reservation
-urlResDelete="http://192.168.1.178:5000/reservation/deletereserve/5e29fa071c9d4400001deed1"
+urlResDelete="http://192.168.1.178:5000/reservation/deletereserve/5e29fa9c1c9d4400001deed2"
 
 # LED strip configuration:
 LED_COUNT = 56        # Number of LED pixels.
