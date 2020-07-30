@@ -25,10 +25,11 @@ try:
     while 1:        
         if pirOne==1:
             print ('Motion Detected!')
-            time.sleep(5)
+            time.sleep(2)
         else:
             print ('No Motion Detected!')
-
+            time.sleep(2)
+        
         pirOne=0
         print('Pir One is', pirOne)
         
