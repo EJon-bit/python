@@ -20,12 +20,6 @@ LED_INVERT = False    # True to invert the signal (when using NPN transistor lev
 LED_CHANNEL = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
 
-def rgbTrigger():
-    # Create NeoPixel object with appropriate configuration.
-    strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
-    # Intialize the library (must be called once before other functions).
-    strip.begin()
-    print('RGB has been set up')
 
 # Define functions which animate LEDs in various ways.
 def colorWipe(strip, color, wait_ms=10):
@@ -53,9 +47,11 @@ def theaterChase(strip, color, wait_ms=100, iterations=10):
 
 # Main program logic follows:
 try:    
-   
-    rgbTrigger()
-    
+    # Create NeoPixel object with appropriate configuration.
+    strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+    # Intialize the library (must be called once before other functions).
+    strip.begin()
+
     print('Press Ctrl-C to quit.')
     
     while True:

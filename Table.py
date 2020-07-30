@@ -64,11 +64,7 @@ pirFour=0
 customValidate=0
 
 def rgbTrigger():
-    # Create NeoPixel object with appropriate configuration.
-    strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
-    # Intialize the library (must be called once before other functions).
-    strip.begin()
-    logger.info('RGB has been set up')
+   
 
 def colorWipe(strip, color, wait_ms=30):
     """Wipe color across display a pixel at a time."""
@@ -159,7 +155,11 @@ try:
     GPIO.add_event_detect(PIR3_PIN, GPIO.BOTH, callback=MOTION_THREE)
     GPIO.add_event_detect(PIR4_PIN, GPIO.BOTH, callback=MOTION_FOUR)
 
-    rgbTrigger()
+     # Create NeoPixel object with appropriate configuration.
+    strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+    # Intialize the library (must be called once before other functions).
+    strip.begin()
+    logger.info('RGB has been set up')
 
     while 1: 
                        
