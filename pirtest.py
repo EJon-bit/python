@@ -24,17 +24,17 @@ print ('Ready')
 
 try:
     GPIO.add_event_detect(PIR_PIN, GPIO.BOTH, callback=MOTION)
-    
+
     while 1:        
         if pirOne==1:
             print ('Motion Detected!')
-            time.sleep(2)
+            time.sleep(0.5)
         elif pirOne==2:
             print ('Person has moved!')
-            time.sleep(2)
+            time.sleep(0.5)
         else:
             print ('No Motion Detected!')
-            time.sleep(2)
+            time.sleep(0.5)
 
         pirOne=0
         time.sleep(2)        
