@@ -189,7 +189,9 @@ try:
             # then wait a bit and check if there is still no motion    
             elif (pirOne==2 and pirTwo==2):
                 
-                sio.emit('tableOcc', 'true') 
+                getTabOcc= requests.get(urlGetTableStat)
+                tabOccStat=getTabOcc.json()  
+                logger.info(tabOccStat['occupied'])
             
                 if tabOccStat['occupied'] is True:
                     j=0   
