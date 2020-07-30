@@ -12,8 +12,10 @@ pirOne=0
 
 def MOTION(PIR_PIN):
     global pirOne
-    pirOne=1
-    print('Pir One is', pirOne)
+    if GPIO.input(PIR_PIN):     # if pin input high  
+        pirOne=1
+    else:                  # if pin input low 
+        pirOne=2
     
 
 print ('PIR Module Test (CTRL+C to exit)')
@@ -21,16 +23,21 @@ time.sleep(2)
 print ('Ready')
 
 try:
-    GPIO.add_event_detect(PIR_PIN, GPIO.RISING, callback=MOTION)
+    GPIO.add_event_detect(PIR_PIN, GPIO.BOTH, callback=MOTION)
+    
     while 1:        
         if pirOne==1:
             print ('Motion Detected!')
             time.sleep(2)
+        elif pirOne==2:
+            print ('Person has moved!')
+            time.sleep(2)
         else:
             print ('No Motion Detected!')
             time.sleep(2)
-        
+
         pirOne=0
+        time.sleep(2)        
         print('Pir One is', pirOne)
         
 

@@ -63,7 +63,6 @@ pirThree=0
 pirFour=0
 customValidate=0
 
-def rgbTrigger():
    
 
 def colorWipe(strip, color, wait_ms=30):
@@ -99,8 +98,9 @@ def disconnect():
 #listens for alert event to start rgb lights..based on if the event data correlates with the tableID
 @sio.on('triggerRgb')
 def on_message(data):
+    global rgbStart
     logger.info('RGB has been triggered')     
-    if(data==tableId):
+    if(data==tableId):        
         rgbStart=1
         # logger.info(rgbStart)
         logger.info('data is equal to TableId')
@@ -124,24 +124,29 @@ def pirControl():
 
 
 def MOTION(PIR_PIN):
+    global pirOne
+
     if GPIO.input(PIR_PIN):     # if pin input high  
         pirOne=1
     else:                  # if pin input low 
         pirOne=2
 
 def MOTION_TWO(PIR2_PIN):
+    global pirTwo
     if GPIO.input(PIR2_PIN):     # if pin input high  
         pirTwo=1
     else:                  # if pin input low 
         pirTwo=2
 
 def MOTION_THREE(PIR3_PIN):
+    global pirThree
     if GPIO.input(PIR3_PIN):     # if pin input high  
         pirThree=1
     else:                  # if pin input low 
         pirThree=2
 
 def MOTION_FOUR(PIR4_PIN):
+    global pirFour
     if GPIO.input(PIR4_PIN):     # if pin input high  
         pirFour=1
     else:                  # if pin input low 
