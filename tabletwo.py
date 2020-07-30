@@ -222,8 +222,7 @@ try:
                         if timeDiff> 1:
                             pirOne=0
                             pirTwo=0
-                            pirThree=0
-                            pirFour=0
+                            
                             getPay= requests.get(urlPayGet)
                             payStat= getPay.json()
                             logger.info(payStat['paid'])
