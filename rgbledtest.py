@@ -177,7 +177,8 @@ try:
                     
         elif rgbStart==0: 
             print('Var Customevalidate equal', customValidate)
-
+            time.sleep(0.2)
+            
             if ((pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0):
                 time.sleep(3.5)
                 if (pirOne==1 or pirTwo==1 or pirThree==1 or pirFour==1) and customValidate==0: 
