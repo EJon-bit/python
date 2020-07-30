@@ -53,6 +53,8 @@ GPIO.setup(PIR2_PIN, GPIO.IN)
 pirOne=0
 pirTwo=0
 
+timeCheck_one=0
+timeCheck_two=0
 
 rgbStart=0 #check var to keep tabs on state of RGB lights (i.e. whether on/off)
 
