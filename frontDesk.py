@@ -19,13 +19,12 @@ sio = socketio.Client()
 IR_PIN=36
 IR2_PIN=37
 
-BUZZ_1PIN=7
 
 GPIO.setmode(GPIO.BOARD)
 
 GPIO.setup(IR_PIN, GPIO.IN)
 GPIO.setup(IR2_PIN, GPIO.IN)
-GPIO.setup(BUZZ_1PIN, GPIO.OUT)
+
 
 
 irSequence1=0
