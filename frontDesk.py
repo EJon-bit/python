@@ -79,7 +79,7 @@ def OBSTACLE(IR_PIN):
     else:
         #1st ir sensor is then person might be entering
         irSequence1=1
-        logger.info('motion detected')
+        logger.info('motion One detected')
 
 def OBSTACLE_TWO(IR2_PIN):
     #if 1st ir sonsor detects person before middle sensor
@@ -89,7 +89,7 @@ def OBSTACLE_TWO(IR2_PIN):
 
     else: 
         irSequence2=1
-        logger.info('motion detected')
+        logger.info('motion Two detected')
 
 
 
@@ -98,7 +98,7 @@ def eraseCounters():
     global irSequence2    
     irSequence1=0
     irSequence2=0
-    logger.info('Counters ahve been erased')
+    logger.info('Counters have been erased')
     
 
 
@@ -108,10 +108,8 @@ try:
     
     while 1: 
            
-        if irSequence1==1 or (irSequence1==1 and irSequence2==2):
-            eraseCounters()
+        if irSequence1==1 or (irSequence1==1 and irSequence2==2):            
             logger.info('Customer entering')
-
             #triggers alarm if person that has not been validated is trying to enter
             if approvedCount==0:
                 sio.emit('unauthorized', 'true')
@@ -121,12 +119,15 @@ try:
                 time.sleep(3)
                 approvedCount=0
 
-        elif irSequence2==1 or (irSequence2==1 and irSequence1==2):
             eraseCounters()
+
+        elif irSequence2==1 or (irSequence2==1 and irSequence1==2):
+            
             logger.info('Customer Leaving')
             if exitDeclinedCount>0:
                 sio.emit('noPay', 'leaving')#emit mesage to server to alert front desk of deceitful customers
-                
+            
+            eraseCounters()   
 
         elif irSequence1==0 and irSequence2==0:            
             logger.info('nothing is happening')
