@@ -6,7 +6,7 @@ import time
 
 GPIO.setmode(GPIO.BCM)
 
-BUZZ_1PIN=7
+BUZZ_1PIN=4
 GPIO.setup(BUZZ_1PIN, GPIO.OUT)
 
 try:  
