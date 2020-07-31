@@ -6,7 +6,7 @@ import time
 
 GPIO.setmode(GPIO.BOARD)
 
-BUZZ_1PIN=7
+BUZZ_1PIN=15
 GPIO.setup(BUZZ_1PIN, GPIO.OUT)
 
 try:  
@@ -20,7 +20,7 @@ try:
             GPIO.output(BUZZ_1PIN, GPIO.HIGH)
             time.sleep(2);
             GPIO.output(BUZZ_1PIN, GPIO.LOW)
-            time,sleep(2)
+            time.sleep(2)
             i+=1
             
 
