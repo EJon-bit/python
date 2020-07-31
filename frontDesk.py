@@ -73,7 +73,7 @@ sio.connect('http://192.168.1.178:5000')
 def OBSTACLE(IR_PIN):
     #if 2nd (middle sensor) triggered before first
     global irSequence1  
-    global irSequence2  
+     
     if irSequence2==1:
         irSequence1=2   
             
@@ -85,7 +85,7 @@ def OBSTACLE(IR_PIN):
 def OBSTACLE_TWO(IR2_PIN):
     #if 1st ir sonsor detects person before middle sensor
     global irSequence2
-    global irSequence1
+   
     if irSequence1==1 :
         irSequence2=2  
 
@@ -110,7 +110,7 @@ try:
     
     while 1: 
            
-        if irSequence1==1 or (irSequence1==1 and irSequence2==2):            
+        if irSequence1==1:            
             
             logger.info('Customer entering')
             #triggers alarm if person that has not been validated is trying to enter
@@ -124,7 +124,7 @@ try:
 
             eraseCounters()
 
-        elif irSequence2==1 or (irSequence2==1 and irSequence1==2):
+        elif irSequence2==1:
             
             logger.info('Customer Leaving')
             if exitDeclinedCount>0:
