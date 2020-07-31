@@ -19,23 +19,24 @@ logger.addHandler(file2);
 
 # standard Python
 sio = socketio.Client()
-IR_PIN= 6 
-IR2_PIN=36
-IR3_PIN=37
+# IR_PIN= 6 
+IR_PIN=36
+IR2_PIN=37
 
 BUZZ_1PIN=7
 BUZZ_2PIN=15
 GPIO.setmode(GPIO.BOARD)
+# GPIO.setup(IR_PIN, GPIO.IN)
 GPIO.setup(IR_PIN, GPIO.IN)
 GPIO.setup(IR2_PIN, GPIO.IN)
-GPIO.setup(IR3_PIN, GPIO.IN)
 GPIO.setup(BUZZ_1PIN, GPIO.OUT)
 GPIO.setup(BUZZ_2PIN, GPIO.OUT)
 
 irSequence1=0
 irSequence2=0
-irSequence3=0
 
+approvedCount=0
+exitDeclinedCount=0
 
 #list for all customers who are trying to leave without payment
 exitDeclinedCount=0
@@ -58,12 +59,14 @@ def disconnect():
 #listens for event prevent false alarms at front desk when a validated customer tries to enter
 @sio.event
 def entryApproval(data):
+    global approvedCount
     logger.info('An Approved customer is now enterring!')
     approvedCount=data
 
 #event occurs when customers leave their a table without paying
 @sio.event
 def noticeDesk(data):
+    global exitDeclinedCount
     logger.info('A customer may be attempting to leave without pay!')
     #counts the numer of customers currently trying to leave without pay
     exitDeclinedCount=data
@@ -75,7 +78,7 @@ sio.connect('http://192.168.1.178:5000')
 def OBSTACLE(IR_PIN):
     #if 2nd (middle sensor) triggered before first
     global irSequence1    
-    if irSequence2==2 or irSequence2==3:
+    if irSequence2==1:
         irSequence1=2       
     else:
         #1st ir sensor is then person might be entering
@@ -86,41 +89,30 @@ def OBSTACLE_TWO(IR2_PIN):
     #if 1st ir sonsor detects person before middle sensor
     global irSequence2
     if irSequence1==1 :
-        irSequence2=1
-
-    #if 3rd sensor detetects person before middle sensor
-    elif irSequence3==1:
-        irSequence2=2
+        irSequence2=2  
 
     else: 
-        irSequence2==3
+        irSequence2=1
     
 
-def OBSTACLE_THREE(IR3_PIN):
-    #if 1st sensor then 2nd detected person
-    global irSequence3
-    if irSequence2==1:
-        irSequence3=2
-    else:
-        irSequence3=1
+
 
 def eraseCounters():
     global irSequence1
-    global irSequence2
-    global irSequence3
+    global irSequence2    
     irSequence1=0
     irSequence2=0
-    irSequence3=0
+    
 
 
 try:
     GPIO.add_event_detect(IR_PIN, GPIO.LOW, callback=OBSTACLE)
     GPIO.add_event_detect(IR2_PIN, GPIO.LOW, callback=OBSTACLE_TWO)
-    GPIO.add_event_detect(IR3_PIN, GPIO.LOW, callback=OBSTACLE_THREE)
+    
     while 1: 
         i=0
 
-        if irSequence1==1 or irSequence2==1 or irSequence3==1:
+        if irSequence1==1:
             eraseCounters()
             logger.info('Customer entering')
 
@@ -137,7 +129,7 @@ try:
                 time.sleep(3)
                 approvedCount=0
 
-        elif irSequence2==2 or irSequence1==2:
+        elif irSequence2==1:
             eraseCounters()
             logger.info('Customer Leaving')
             if exitDeclinedCount>0:
@@ -150,18 +142,18 @@ try:
                     i+=1
 
 
-        elif  irSequence3==1 and irSequence1==1:
-            eraseCounters()
-            logger.info('A Customer is Leaving while another enters')
+        # elif  irSequence3==1 and irSequence1==1:
+        #     eraseCounters()
+        #     logger.info('A Customer is Leaving while another enters')
 
-            if approvedCount==0 or exitDeclinedCount>0:
-                sio.emit('noPay', 'both')
-                while i<=2:
-                    GPIO.output(BUZZ_1PIN, GPIO.HIGH)
-                    time.sleep(0.3);
-                    GPIO.output(BUZZ_1PIN, GPIO.LOW)
-                    time.sleep(0.5)
-                    i+=1
+        #     if approvedCount==0 or exitDeclinedCount>0:
+        #         sio.emit('noPay', 'both')
+        #         while i<=2:
+        #             GPIO.output(BUZZ_1PIN, GPIO.HIGH)
+        #             time.sleep(0.3);
+        #             GPIO.output(BUZZ_1PIN, GPIO.LOW)
+        #             time.sleep(0.5)
+        #             i+=1
 except Exception as e:
     logger.exception(e)
 
