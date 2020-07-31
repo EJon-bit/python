@@ -56,7 +56,7 @@ def disconnect():
 def entryApproval(data):
     global approvedCount
     logger.info('An Approved customer is now enterring!')
-    approvedCount=1
+    approvedCount=data
 
 #event occurs when customers leave their a table without paying
 @sio.event
@@ -64,7 +64,7 @@ def noticeDesk(data):
     global exitDeclinedCount
     logger.info('A customer may be attempting to leave without pay!')
     #counts the numer of customers currently trying to leave without pay
-    exitDeclinedCount=1
+    exitDeclinedCount=data
 
 sio.connect('http://192.168.1.178:5000')
 
@@ -133,7 +133,7 @@ try:
 
 except KeyboardInterrupt:
    print('Exit')
-   
+
 except Exception as e:
     logger.exception(e)
 
