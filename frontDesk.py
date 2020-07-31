@@ -1,4 +1,4 @@
-import requests
+
 import RPi.GPIO as GPIO
 import time
 import socketio
@@ -106,8 +106,8 @@ def eraseCounters():
 
 
 try:
-    GPIO.add_event_detect(IR_PIN, GPIO.LOW, callback=OBSTACLE)
-    GPIO.add_event_detect(IR2_PIN, GPIO.LOW, callback=OBSTACLE_TWO)
+    GPIO.add_event_detect(IR_PIN, GPIO.FALLING, callback=OBSTACLE)
+    GPIO.add_event_detect(IR2_PIN, GPIO.FALLING, callback=OBSTACLE_TWO)
     
     while 1: 
         i=0        
