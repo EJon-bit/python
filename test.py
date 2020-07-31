@@ -4,9 +4,9 @@
 import RPi.GPIO as GPIO
 import time
 
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 
-BUZZ_1PIN=15
+BUZZ_1PIN=7
 GPIO.setup(BUZZ_1PIN, GPIO.OUT)
 
 try:  
