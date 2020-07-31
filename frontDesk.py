@@ -131,7 +131,9 @@ try:
         elif irSequence1==0 and irSequence2==0:            
             logger.info('nothing is happening')
 
-
+except KeyboardInterrupt:
+   print('Exit')
+   
 except Exception as e:
     logger.exception(e)
 
