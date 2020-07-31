@@ -66,30 +66,30 @@ def noticeDesk(data):
     #counts the numer of customers currently trying to leave without pay
     exitDeclinedCount=data
 
+sio.connect('http://192.168.1.178:5000')
+
 
 
 def OBSTACLE(IR_PIN):
     #if 2nd (middle sensor) triggered before first
-    global irSequence1  
-     
+    global irSequence1    
     if irSequence2==1:
         irSequence1=2   
             
     else:
         #1st ir sensor is then person might be entering
         irSequence1=1
-        logger.info('motion One detected')
+        logger.info('motion detected')
 
 def OBSTACLE_TWO(IR2_PIN):
     #if 1st ir sonsor detects person before middle sensor
     global irSequence2
-   
     if irSequence1==1 :
         irSequence2=2  
 
     else: 
         irSequence2=1
-        logger.info('motion Two detected')
+        logger.info('motion detected')
 
 
 
@@ -98,7 +98,7 @@ def eraseCounters():
     global irSequence2    
     irSequence1=0
     irSequence2=0
-    logger.info('Counters have been erased')
+    logger.info('Counters ahve been erased')
     
 
 
@@ -108,31 +108,28 @@ try:
     
     while 1: 
            
-        if irSequence1==1:            
-            
+        if irSequence1==1 or (irSequence1==1 and irSequence2==2):
+            eraseCounters()
             logger.info('Customer entering')
+
             #triggers alarm if person that has not been validated is trying to enter
             if approvedCount==0:
                 sio.emit('unauthorized', 'true')
-                time.sleep(0.1)
+               
             #if customer has been validated wait 3 seconds then clear variable 
             elif approvedCount!=0:
                 time.sleep(3)
                 approvedCount=0
 
+        elif irSequence2==1 or (irSequence2==1 and irSequence1==2):
             eraseCounters()
-
-        elif irSequence2==1:
-            
             logger.info('Customer Leaving')
             if exitDeclinedCount>0:
                 sio.emit('noPay', 'leaving')#emit mesage to server to alert front desk of deceitful customers
-                time.sleep(0.1)
-            eraseCounters()   
+                
 
         elif irSequence1==0 and irSequence2==0:            
             logger.info('nothing is happening')
-            time.sleep(2)
 
 except KeyboardInterrupt:
    print('Exit')

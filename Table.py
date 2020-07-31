@@ -269,5 +269,6 @@ except Exception as e:
     logger.exception(e)
 
 finally:
+    colorWipe(strip, Color(0,0,0), 10)
     sio.disconnect()
     GPIO.cleanup()
