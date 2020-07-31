@@ -19,18 +19,18 @@ logger.addHandler(file2);
 
 # standard Python
 sio = socketio.Client()
-# IR_PIN= 6 
+
 IR_PIN=36
 IR2_PIN=37
 
 BUZZ_1PIN=7
-BUZZ_2PIN=15
+
 GPIO.setmode(GPIO.BOARD)
-# GPIO.setup(IR_PIN, GPIO.IN)
+
 GPIO.setup(IR_PIN, GPIO.IN)
 GPIO.setup(IR2_PIN, GPIO.IN)
 GPIO.setup(BUZZ_1PIN, GPIO.OUT)
-GPIO.setup(BUZZ_2PIN, GPIO.OUT)
+
 
 irSequence1=0
 irSequence2=0
@@ -79,11 +79,12 @@ def OBSTACLE(IR_PIN):
     #if 2nd (middle sensor) triggered before first
     global irSequence1    
     if irSequence2==1:
-        irSequence1=2       
+        irSequence1=2   
+            
     else:
         #1st ir sensor is then person might be entering
         irSequence1=1
-    
+        logger.info('motion detected')
 
 def OBSTACLE_TWO(IR2_PIN):
     #if 1st ir sonsor detects person before middle sensor
@@ -93,7 +94,7 @@ def OBSTACLE_TWO(IR2_PIN):
 
     else: 
         irSequence2=1
-    
+        logger.info('motion detected')
 
 
 
@@ -102,6 +103,7 @@ def eraseCounters():
     global irSequence2    
     irSequence1=0
     irSequence2=0
+    logger.info('Counters ahve been erased')
     
 
 
@@ -111,7 +113,7 @@ try:
     
     while 1: 
         i=0        
-        if irSequence1==1:
+        if irSequence1==1 or (irSequence1==1 and irSequence2==2):
             eraseCounters()
             logger.info('Customer entering')
 
@@ -120,28 +122,28 @@ try:
                 sio.emit('unauthorized', 'true')
                 while i<=3:
                     GPIO.output(BUZZ_1PIN, GPIO.HIGH)
-                    time.sleep(0.5);
+                    time.sleep(2);
                     GPIO.output(BUZZ_1PIN, GPIO.LOW)
+                    time,sleep(2)
                     i+=1
             #if customer has been validated wait 3 seconds then clear variable 
             elif approvedCount!=0:
                 time.sleep(3)
                 approvedCount=0
 
-        elif irSequence2==1:
+        elif irSequence2==1 or (irSequence2==1 and irSequence1==2):
             eraseCounters()
             logger.info('Customer Leaving')
             if exitDeclinedCount>0:
                 sio.emit('noPay', 'leaving')#emit mesage to server to alert front desk of deceitful customers
-                while i<=50:
+                while i<=4:
                     GPIO.output(BUZZ_1PIN, GPIO.HIGH)
-                    time.sleep(0.2);
+                    time.sleep(3);
                     GPIO.output(BUZZ_1PIN, GPIO.LOW)
-                    time.sleep(0.2);
+                    time.sleep(2);
                     i+=1
 
-        elif irSequence1==0 and irSequence2==0:
-            time.sleep(3)
+        elif irSequence1==0 and irSequence2==0:            
             logger.info('nothing is happening')
 
 
