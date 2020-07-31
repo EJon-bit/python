@@ -9,14 +9,9 @@ logger = logging.getLogger(__name__)
 
 logger.setLevel(logging.DEBUG)
 
-file= logging.FileHandler(filename='CustomerMGMT.log')
-file.setLevel(logging.WARNING)
-
-file2= logging.FileHandler(filename='CustomerError.log')
-file2.setLevel(logging.INFO)
+file= logging.FileHandler(filename='customermgmt.log')
 
 logger.addHandler(file);
-logger.addHandler(file2);
 
 # standard Python
 sio = socketio.Client()
@@ -113,7 +108,7 @@ try:
     GPIO.add_event_detect(IR2_PIN, GPIO.FALLING, callback=OBSTACLE_TWO)
     
     while 1: 
-        i=0        
+           
         if irSequence1==1 or (irSequence1==1 and irSequence2==2):
             eraseCounters()
             logger.info('Customer entering')
@@ -121,12 +116,7 @@ try:
             #triggers alarm if person that has not been validated is trying to enter
             if approvedCount==0:
                 sio.emit('unauthorized', 'true')
-                while i<=3:
-                    GPIO.output(BUZZ_1PIN, GPIO.HIGH)
-                    time.sleep(2);
-                    GPIO.output(BUZZ_1PIN, GPIO.LOW)
-                    time,sleep(2)
-                    i+=1
+               
             #if customer has been validated wait 3 seconds then clear variable 
             elif approvedCount!=0:
                 time.sleep(3)
@@ -137,12 +127,7 @@ try:
             logger.info('Customer Leaving')
             if exitDeclinedCount>0:
                 sio.emit('noPay', 'leaving')#emit mesage to server to alert front desk of deceitful customers
-                while i<=4:
-                    GPIO.output(BUZZ_1PIN, GPIO.HIGH)
-                    time.sleep(3);
-                    GPIO.output(BUZZ_1PIN, GPIO.LOW)
-                    time.sleep(2);
-                    i+=1
+                
 
         elif irSequence1==0 and irSequence2==0:            
             logger.info('nothing is happening')

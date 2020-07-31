@@ -10,10 +10,7 @@ from email.utils import formatdate
 
 DIR = os.path.abspath(os.path.dirname(__file__))
 
-LOGS = [
-        os.path.join(DIR, 'CustomerError.log'),
-        os.path.join(DIR, 'CustomerMGMT.log')
-]
+LOGS = [ os.path.join(DIR, 'customermgmt.log')]
 
 def send_logs(host, user, password, send_to, send_from, client):
     """
