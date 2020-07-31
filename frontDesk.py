@@ -110,8 +110,7 @@ try:
     GPIO.add_event_detect(IR2_PIN, GPIO.LOW, callback=OBSTACLE_TWO)
     
     while 1: 
-        i=0
-
+        i=0        
         if irSequence1==1:
             eraseCounters()
             logger.info('Customer entering')
@@ -141,19 +140,11 @@ try:
                     time.sleep(0.2);
                     i+=1
 
+        elif irSequence1==0 and irSequence2==0:
+            time.sleep(3)
+            logger.info('nothing is happening')
 
-        # elif  irSequence3==1 and irSequence1==1:
-        #     eraseCounters()
-        #     logger.info('A Customer is Leaving while another enters')
 
-        #     if approvedCount==0 or exitDeclinedCount>0:
-        #         sio.emit('noPay', 'both')
-        #         while i<=2:
-        #             GPIO.output(BUZZ_1PIN, GPIO.HIGH)
-        #             time.sleep(0.3);
-        #             GPIO.output(BUZZ_1PIN, GPIO.LOW)
-        #             time.sleep(0.5)
-        #             i+=1
 except Exception as e:
     logger.exception(e)
 
