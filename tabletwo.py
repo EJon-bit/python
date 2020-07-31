@@ -175,7 +175,7 @@ try:
                     pirControl()  #update occupied field to true for table
                     time.sleep(0.1)
                     
-        elif rgbStart==0 and (pir_One!=0 and pirTwo!=0): 
+        elif rgbStart==0 and (pirOne!=0 and pirTwo!=0): 
             logger.info(customValidate)
             time.sleep(1)
 
